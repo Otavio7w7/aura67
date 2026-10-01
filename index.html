@@ -19,6 +19,7 @@
   --ego: #ffc53d;
   --ego-ink: #2a1c00;
   --ok: #5ce1b0;
+  --orb: min(62vw, 270px);
   --font-display: "Bungee", "Impact", "Arial Black", sans-serif;
   --font-body: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   color-scheme: dark;
@@ -80,7 +81,7 @@ h1 { font-family: var(--font-display); font-size: clamp(26px, 6vw, 38px); line-h
 .orb-wrap { --h: 265; position: relative; display: grid; place-items: center; width: 100%; padding-block: 34px 18px; }
 .rings { position: absolute; left: 0; right: 0; top: -70px; bottom: -70px; overflow: clip; pointer-events: none; }
 .ring-c {
-  position: absolute; left: 50%; top: 50%; translate: -50% -50%; border-radius: 50%; width: calc(min(66vw, 290px) + 32px); aspect-ratio: 1;
+  position: absolute; left: 50%; top: 50%; translate: -50% -50%; border-radius: 50%; width: calc(var(--orb) + 32px); aspect-ratio: 1;
   background: conic-gradient(from 0deg, hsl(var(--h) 95% 70%), transparent 28%, hsl(calc(var(--h) + 60) 95% 70%) 58%, transparent 82%, hsl(var(--h) 95% 70%));
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px));
@@ -88,10 +89,10 @@ h1 { font-family: var(--font-display); font-size: clamp(26px, 6vw, 38px); line-h
 }
 .ring-x {
   position: absolute; left: 50%; top: 50%; translate: -50% -50%; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .8s;
-  width: min(calc(min(66vw, 290px) + 64px), 100%); aspect-ratio: 1;
+  width: min(calc(var(--orb) + 64px), 100%); aspect-ratio: 1;
   border: 2px dashed hsl(var(--h) 95% 72% / .6); animation: spin 14s linear infinite;
 }
-.ring-x.b { width: min(calc(min(66vw, 290px) + 120px), 100%); border-style: dotted; animation-duration: 24s; animation-direction: reverse; }
+.ring-x.b { width: min(calc(var(--orb) + 120px), 100%); border-style: dotted; animation-duration: 24s; animation-direction: reverse; }
 .orb-wrap[data-lv="1"] .ring-x.a, .orb-wrap[data-lv="2"] .ring-x, .orb-wrap[data-lv="3"] .ring-x { opacity: 1; }
 .orb-wrap[data-lv="3"] .ring-x.b { border-width: 3px; }
 .combo {
@@ -104,7 +105,7 @@ h1 { font-family: var(--font-display); font-size: clamp(26px, 6vw, 38px); line-h
 
 .orb {
   --h: 265; --g: 0;
-  position: relative; width: min(66vw, 290px); aspect-ratio: 1; max-width: 100%;
+  position: relative; width: var(--orb); aspect-ratio: 1; max-width: 100%;
   border: 0; padding: 0; border-radius: 50%; cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   background: radial-gradient(circle at 50% 50%, hsl(var(--h) 90% 55%), hsl(calc(var(--h) + 40) 80% 30%));
   box-shadow:
@@ -323,12 +324,12 @@ h1 {
 
 .orbit {
   position: absolute; left: 50%; top: 50%; translate: -50% -50%; aspect-ratio: 1; border-radius: 50%; pointer-events: none; opacity: 0; transition: opacity .8s;
-  width: min(calc(min(66vw, 290px) + 44px), 100%); animation: spin 7s linear infinite;
+  width: min(calc(var(--orb) + 44px), 100%); animation: spin 7s linear infinite;
 }
 .orbit b { position: absolute; left: 50%; top: -5px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: hsl(var(--h) 100% 82%); box-shadow: 0 0 12px 4px hsl(var(--h) 100% 70% / .8); }
-.orbit.o2 { width: min(calc(min(66vw, 290px) + 88px), 100%); animation-duration: 11s; animation-direction: reverse; }
+.orbit.o2 { width: min(calc(var(--orb) + 88px), 100%); animation-duration: 11s; animation-direction: reverse; }
 .orbit.o2 b { background: hsl(calc(var(--h) + 60) 100% 82%); box-shadow: 0 0 12px 4px hsl(calc(var(--h) + 60) 100% 70% / .8); }
-.orbit.o3 { width: min(calc(min(66vw, 290px) + 130px), 100%); animation-duration: 16s; }
+.orbit.o3 { width: min(calc(var(--orb) + 130px), 100%); animation-duration: 16s; }
 .orbit.o3 b { width: 7px; height: 7px; background: #fff; box-shadow: 0 0 10px 3px var(--ego); }
 .orb-wrap[data-lv="1"] .orbit.o1, .orb-wrap[data-lv="2"] .orbit.o1, .orb-wrap[data-lv="2"] .orbit.o2, .orb-wrap[data-lv="3"] .orbit { opacity: 1; }
 .orb-wrap[data-lv="3"] .orbit.o1 { opacity: 1; }
@@ -394,7 +395,32 @@ body.inf .big { background: linear-gradient(90deg, #ff4fd8, #ffc53d, #5ce1b0, #8
   .floater { animation-duration: .4s; }
   .app.shake-sm, .app.shake-lg { animation: none; }
 }
+/* ===== Abas e orientação ===== */
+@media (min-width: 880px) { :root { --orb: 290px; } }
+.hint { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
+.tabbar { display: flex; gap: 6px; }
+.tabbar button { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 4px 8px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); border-radius: 12px; cursor: pointer; font-weight: 800; font-size: 12px; }
+.tabbar button svg { width: 20px; height: 20px; }
+.tabbar button[aria-selected="true"] { background: var(--aura); border-color: var(--aura); color: #fff; }
+.tabbar .dot { position: absolute; top: 5px; right: 9px; width: 10px; height: 10px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 8px var(--ok); }
+.tabbar .dot.egoon { background: var(--ego); box-shadow: 0 0 10px var(--ego); animation: dotp 1.1s ease-in-out infinite; }
+@keyframes dotp { 50% { transform: scale(1.35); } }
+@media (max-width: 879px) {
+  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--bg) 95%, transparent); border-top: 1px solid var(--line); }
+  body { padding-bottom: 92px; }
+  .tabpanel { scroll-margin-top: 60px; }
+}
+@media (min-width: 880px) { .tabbar { position: sticky; top: 10px; z-index: 5; margin-bottom: 14px; } }
+.tabpanel { display: flex; flex-direction: column; gap: 20px; }
+.tip { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 10px 12px; border-radius: 14px; border: 1px solid color-mix(in srgb, var(--aura) 55%, var(--line)); background: color-mix(in srgb, var(--aura) 14%, var(--panel)); font-size: 14px; font-weight: 700; }
+.tip.egoon { border-color: var(--ego); background: color-mix(in srgb, var(--ego) 14%, var(--panel)); }
+.tip button { flex: none; }
+.egoready { margin: 4px 0 12px; }
+.bar.thin { height: 8px; }
+.egoready small { display: block; margin-top: 5px; color: var(--muted); font-size: 12px; }
+
 /* ===== Modo leve (celulares e aparelhos fracos) ===== */
+body.lite .tabbar { backdrop-filter: none; }
 body.lite .sky, body.lite .speedlines, body.lite .vignette, body.lite .orbit, body.lite .frenzy-bg { display: none; }
 body.lite .orb { animation: none; box-shadow: 0 0 0 8px hsl(var(--h) 90% 60% / .14), 0 0 36px 6px hsl(var(--h) 90% 60% / .38); }
 body.lite .orb.wobble { animation: wobble .25s ease-out; }
@@ -540,8 +566,51 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       </div>
 
       <div class="ticker" id="ticker" aria-live="polite">Clique no 67. Ninguém vai te julgar.</div>
+      <div class="tip" id="tip" hidden><span id="tipText"></span><button class="ghost solid" id="tipGo" type="button">Ver</button></div>
       <div class="stats" id="stats"></div>
 
+    </section>
+
+    <section class="shop" aria-label="Loja">
+      <nav class="tabbar" id="tabbar" role="tablist" aria-label="Seções do jogo">
+        <button type="button" role="tab" id="tb-up" data-tab="up" aria-controls="tab-up" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Melhorias</span><i class="dot" hidden></i></button>
+        <button type="button" role="tab" id="tb-ego" data-tab="ego" aria-controls="tab-ego" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18h18M4 18L3 7l5 4 4-7 4 7 5-4-1 11"/></svg><span>Ego</span><i class="dot" hidden></i></button>
+        <button type="button" role="tab" id="tb-ach" data-tab="ach" aria-controls="tab-ach" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg><span>Conquistas</span><i class="dot" hidden></i></button>
+        <button type="button" role="tab" id="tb-more" data-tab="more" aria-controls="tab-more" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2-1.2L14 3h-4l-.6 2.6a7 7 0 0 0-2 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 2 1.2L10 21h4l.6-2.6a7 7 0 0 0 2-1.2l2.3.9 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></svg><span>Mais</span><i class="dot" hidden></i></button>
+      </nav>
+
+      <div class="tabpanel" id="tab-up" role="tabpanel" aria-labelledby="tb-up">
+      <div class="sec">
+        <div class="sec-head"><h2>Aura por clique</h2></div>
+        <p class="hint">Poses: cada nível aumenta a aura que você ganha a cada clique no 67.</p>
+        <ul class="list" id="poses"></ul>
+      </div>
+
+
+      <div class="sec">
+        <div class="sec-head">
+          <h2>Aura por segundo</h2>
+          <div class="seg" role="group" aria-label="Quantidade de compra" id="modes">
+            <button type="button" data-mode="1" aria-pressed="true">x1</button>
+            <button type="button" data-mode="10" aria-pressed="false">x10</button>
+            <button type="button" data-mode="max" aria-pressed="false">Máx</button>
+          </div>
+        </div>
+        <p class="hint">Geradores: farmam aura sozinhos, sem precisar clicar. Quanto mais você compra, mais rápido.</p>
+        <ul class="list" id="gens"></ul>
+      </div>
+
+
+      <div class="sec">
+        <div class="sec-head"><h2>Multiplicadores</h2></div>
+        <p class="hint">Compra única: multiplica toda a aura que você ganha, de clique e automática.</p>
+        <div class="mults" id="mults"></div>
+      </div>
+
+
+      </div>
+
+      <div class="tabpanel" id="tab-ego" role="tabpanel" aria-labelledby="tb-ego" hidden>
       <section class="ego" aria-label="Ego">
         <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18h18M4 18L3 7l5 4 4-7 4 7 5-4-1 11"/></svg>Ego</h2>
         <div class="row">
@@ -549,39 +618,30 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
           <div class="stat"><b id="egoMult">x1</b><span>multiplica a aura</span></div>
           <div class="stat"><b id="egoGain">+0</b><span>ao inflar agora</span></div>
         </div>
-        <p>Inflar o ego zera aura, poses, geradores e multiplicadores. Cada ponto de ego soma +40% em tudo, para sempre, e também rende pontos para gastar na Loja do Ego.</p>
+        <p>Quando usar: depois de juntar bastante aura na rodada. Inflar o ego zera aura, poses, geradores e multiplicadores. Cada ponto de ego soma +40% em tudo, para sempre, e também rende pontos para gastar na Loja do Ego.</p>
+        <div class="egoready"><div class="bar thin" aria-hidden="true"><i id="egoReadyFill"></i></div><small id="egoReadyTxt"></small></div>
         <button class="btn-ego" id="egoBtn" type="button">Inflar o ego</button>
       </section>
-    </section>
-
-    <section class="shop" aria-label="Loja">
-      <div class="sec">
-        <div class="sec-head"><h2>Poses</h2></div>
-        <ul class="list" id="poses"></ul>
-      </div>
-
       <div class="sec">
         <div class="sec-head"><h2>Loja do Ego</h2><span class="egoav" id="egoAv"></span></div>
+        <p class="hint">Gaste os pontos de ego em bônus permanentes. Eles ficam mesmo depois de inflar de novo.</p>
         <ul class="list" id="egoShop"></ul>
       </div>
 
-      <div class="sec">
-        <div class="sec-head">
-          <h2>Aura automática</h2>
-          <div class="seg" role="group" aria-label="Quantidade de compra" id="modes">
-            <button type="button" data-mode="1" aria-pressed="true">x1</button>
-            <button type="button" data-mode="10" aria-pressed="false">x10</button>
-            <button type="button" data-mode="max" aria-pressed="false">Máx</button>
-          </div>
-        </div>
-        <ul class="list" id="gens"></ul>
+
       </div>
 
+      <div class="tabpanel" id="tab-ach" role="tabpanel" aria-labelledby="tb-ach" hidden>
       <div class="sec">
-        <div class="sec-head"><h2>Visual</h2></div>
-        <div class="mults" id="mults"></div>
+        <div class="sec-head"><h2>Conquistas</h2></div>
+        <div class="ach" id="ach"></div>
+        <p class="achnote" id="achnote"></p>
       </div>
 
+
+      </div>
+
+      <div class="tabpanel" id="tab-more" role="tabpanel" aria-labelledby="tb-more" hidden>
       <div class="sec">
         <div class="sec-head"><h2>Som do 67</h2></div>
         <div class="snd">
@@ -602,15 +662,12 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
         </div>
       </div>
 
-      <div class="sec">
-        <div class="sec-head"><h2>Conquistas</h2></div>
-        <div class="ach" id="ach"></div>
-        <p class="achnote" id="achnote"></p>
-      </div>
 
       <div class="foot">
         <span id="saveNote">O progresso fica salvo neste navegador.</span>
         <span class="footbtns"><button class="ghost" id="fxBtn" type="button" aria-label="Alternar qualidade dos efeitos">Efeitos: Completo</button> <button class="ghost" id="resetBtn" type="button">Zerar tudo</button></span>
+      </div>
+
       </div>
     </section>
   </main>
@@ -1527,6 +1584,52 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     T(el.exact, inf ? fmt(S.aura) + ' de aura' : (S.aura >= 1000 && S.aura < 1e15 ? fmtInt(S.aura) : ''));
   }
 
+  // ---------- Abas e dica do próximo passo ----------
+  var tabBtns = Array.prototype.slice.call(document.querySelectorAll('#tabbar button'));
+  function setTab(name, scroll) {
+    tabBtns.forEach(function (b) {
+      var on = b.getAttribute('data-tab') === name;
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+      $('tab-' + b.getAttribute('data-tab')).hidden = !on;
+    });
+    if (scroll && window.innerWidth < 880) {
+      var p = $('tab-' + name);
+      setTimeout(function () { p.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' }); }, 30);
+    }
+  }
+  tabBtns.forEach(function (b) { b.addEventListener('click', function () { setTab(b.getAttribute('data-tab'), true); }); });
+  var tipTab = null;
+  $('tipGo').addEventListener('click', function () { if (tipTab) setTab(tipTab, true); else window.scrollTo({ top: 0, behavior: 'smooth' }); });
+  function anyAffordable() {
+    if (poseBtn && !poseBtn.disabled) return true;
+    for (var i = 0; i < genRows.length; i++) if (!genRows[i].li.hidden && !genRows[i].btn.disabled) return true;
+    for (var j = 0; j < multBtns.length; j++) if (!multBtns[j].hidden && !multBtns[j].disabled) return true;
+    return false;
+  }
+  function egoAffordable() {
+    for (var i = 0; i < EUP.length; i++) { var u = EUP[i]; if ((S.eu[u.id] || 0) < u.max && egoAvail() >= euCost(u)) return true; }
+    return false;
+  }
+  function renderGuide() {
+    var g = egoGain(), tip = null, tab = null, gold = false;
+    var egoReady = g >= 1 && (S.inflations === 0 || g >= Math.max(2, S.ego * 0.25));
+    if (egoReady) { tip = 'Hora de inflar o ego: +' + fmt(g) + ' de ego = +' + fmt(g * 40) + '% de aura para sempre.'; tab = 'ego'; gold = true; }
+    else if (S.click === 0 && S.aura >= poseCost()) { tip = 'Compre sua primeira Pose: mais aura por clique.'; tab = 'up'; }
+    else if (totalGens(S) === 0 && S.aura >= genCost(0, 1)) { tip = 'Compre o primeiro gerador: ele farma aura sozinho.'; tab = 'up'; }
+    else if (egoAffordable()) { tip = 'Você tem ego para gastar na Loja do Ego.'; tab = 'ego'; gold = true; }
+    else if (anyAffordable()) { tip = 'Você já pode comprar melhorias.'; tab = 'up'; }
+    else if (S.clicks < 30 && totalGens(S) === 0) { tip = 'Clique no 67 para juntar aura. Depois gaste em Melhorias.'; tab = null; }
+    $('tip').hidden = !tip; $('tip').classList.toggle('egoon', gold);
+    if (tip) { T($('tipText'), tip); tipTab = tab; $('tipGo').hidden = !tab; }
+    var dots = { up: anyAffordable() ? 'ok' : '', ego: (egoReady || egoAffordable()) ? 'gold' : '' };
+    tabBtns.forEach(function (b) {
+      var d = b.querySelector('.dot'), k = dots[b.getAttribute('data-tab')] || '';
+      d.hidden = !k; d.classList.toggle('egoon', k === 'gold');
+    });
+    $('egoReadyFill').style.width = (Math.min(1, S.run / 5000) * 100).toFixed(1) + '%';
+    T($('egoReadyTxt'), g >= 1 ? 'Pronto: inflar agora rende +' + fmt(g) + ' de ego.' : 'Nesta rodada: ' + fmt(S.run) + ' de 5K de aura para o primeiro ponto de ego.');
+  }
+
   function update() {
     var li = levelIndex(), L = LEVELS[li], N = LEVELS[li + 1];
     if (li > lastLevel) levelUpFx(li);
@@ -1615,6 +1718,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       if (!S.ach[a.id] && a.t(S)) { S.ach[a.id] = 1; say('Conquista: ' + a.n + '. +2% de aura.'); save(); }
       achChips[i].classList.toggle('on', !!S.ach[a.id]);
     });
+    renderGuide();
     T(el.achnote, achCount() + ' de ' + ACH.length + ' conquistas · bônus de aura x' + fmt(achBonus()) + ' · bônus de nível x' + fmt(levelBonus()));
     T(el.stats, 'Melhor combo ' + S.bestCombo + ' · críticos ' + fmtInt(S.crits) + ' · auras raras ' + S.golds);
   }

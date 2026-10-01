@@ -39,7 +39,7 @@ create or replace function public.submit_score(
 begin
   if auth.uid() is null then raise exception 'não autenticado'; end if;
   if p_aura < 0 or p_ego < 0 or p_earned < 0 or p_level < 0 or p_level > 40
-     or p_aura > 1e100 or p_earned > 1e100 or p_ego > 1e9 then
+     or p_aura > 1e300 or p_earned > 1e300 or p_ego > 1e300 then
     raise exception 'valores inválidos';
   end if;
   if p_save is not null and pg_column_size(p_save) > 20000 then

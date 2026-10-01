@@ -424,7 +424,7 @@ body.inf .big { background: linear-gradient(90deg, #ff4fd8, #ffc53d, #5ce1b0, #8
 </style>
 <script>
 /* CONFIGURAÇÃO DO RANKING (Supabase): preencha url e key (Project Settings > API). A chave 'anon' é pública por design. */
-window.AURA_CFG = { url: '', key: '', domain: 'aura67.app' };
+window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_publishable_7BlTiKpmXhNSipDmfULI8Q_gPv9YAHh', domain: 'aura67.app' };
 </script>
 
 <canvas class="sky" id="sky" aria-hidden="true"></canvas>
@@ -1625,7 +1625,8 @@ window.AURA_CFG = { url: '', key: '', domain: 'aura67.app' };
   function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
 
   function http(path, method, body, token, keep) {
-    var h = { apikey: CFG.key, 'Content-Type': 'application/json', Authorization: 'Bearer ' + (token || CFG.key) };
+    var h = { apikey: CFG.key, 'Content-Type': 'application/json' };
+    if (token) h.Authorization = 'Bearer ' + token; else if (/^eyJ/.test(CFG.key)) h.Authorization = 'Bearer ' + CFG.key;
     return fetch(CFG.url.replace(/\/+$/, '') + path, { method: method || 'GET', headers: h, body: body ? JSON.stringify(body) : undefined, keepalive: !!keep })
       .then(function (r) {
         return r.text().then(function (t) {

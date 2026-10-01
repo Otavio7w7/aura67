@@ -1,3 +1,6 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0918">
 <title>Fazenda de Aura 67</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -151,7 +154,7 @@ h1 { font-family: var(--font-display); font-size: clamp(26px, 6vw, 38px); line-h
 .floater.crit { font-size: clamp(22px, 6.5vw, 32px); color: var(--ego); text-shadow: 0 2px 0 rgba(90, 40, 0, .9), 0 0 18px #ff9a3d; animation-duration: 1.2s; }
 .floater.super { font-size: clamp(26px, 7.5vw, 44px); color: #fff; text-shadow: 0 3px 0 rgba(120, 0, 100, .9), 0 0 24px var(--aura-2), 0 0 40px var(--ego); animation-duration: 1.5s; }
 .floater.lvl { font-size: clamp(20px, 6vw, 28px); color: #fff; text-shadow: 0 0 20px var(--aura-2); animation-duration: 1.8s; }
-@keyframes rise { from { opacity: 1; margin-top: 0; } to { opacity: 0; margin-top: -110px; } }
+@keyframes rise { from { opacity: 1; translate: 0 0; } to { opacity: 0; translate: 0 -110px; } }
 
 #fx { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 15; pointer-events: none; }
 .flash { position: fixed; inset: 0; z-index: 16; pointer-events: none; opacity: 0; }
@@ -391,6 +394,19 @@ body.inf .big { background: linear-gradient(90deg, #ff4fd8, #ffc53d, #5ce1b0, #8
   .floater { animation-duration: .4s; }
   .app.shake-sm, .app.shake-lg { animation: none; }
 }
+/* ===== Modo leve (celulares e aparelhos fracos) ===== */
+body.lite .sky, body.lite .speedlines, body.lite .vignette, body.lite .orbit, body.lite .frenzy-bg { display: none; }
+body.lite .orb { animation: none; box-shadow: 0 0 0 8px hsl(var(--h) 90% 60% / .14), 0 0 36px 6px hsl(var(--h) 90% 60% / .38); }
+body.lite .orb.wobble { animation: wobble .25s ease-out; }
+body.lite .orb .swirl { filter: none; mix-blend-mode: normal; opacity: .45; animation: none; }
+body.lite .orb .gloss { filter: none; }
+body.lite h1, body.lite .bar > i, body.lite .buy::after, body.lite .ring-c, body.lite .ring-x { animation: none; }
+body.lite .bg-guy .spark, body.lite .bg-guy .glint, body.lite .bg-guy .halo, body.lite .bg-guy .aura-glow { animation: none; }
+body.lite .app.shake-sm, body.lite .app.shake-lg { animation: none; }
+body.lite .modal, body.lite .mini { -webkit-backdrop-filter: none; backdrop-filter: none; }
+body.lite .modal { background: rgba(6, 4, 14, .9); }
+.vignette { transition: none; }
+
 /* ===== Conta e ranking ===== */
 .acct { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
 .acct .who { font-weight: 800; color: var(--ego); max-width: 38vw; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -594,7 +610,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 
       <div class="foot">
         <span id="saveNote">O progresso fica salvo neste navegador.</span>
-        <button class="ghost" id="resetBtn" type="button">Zerar tudo</button>
+        <span class="footbtns"><button class="ghost" id="fxBtn" type="button" aria-label="Alternar qualidade dos efeitos">Efeitos: Completo</button> <button class="ghost" id="resetBtn" type="button">Zerar tudo</button></span>
       </div>
     </section>
   </main>
@@ -637,6 +653,16 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   var KEY = 'aura67.v3';
   var R = 1.165;
   var REDUCED = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  // Modo leve: automático em celular/aparelho fraco; dá pra trocar no rodapé
+  var LITE = (function () {
+    var v = null; try { v = localStorage.getItem('aura67.fx'); } catch (e) {}
+    if (v === 'lite') return true;
+    if (v === 'full') return false;
+    var coarse = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    return coarse || (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 4;
+  })();
+  document.body.classList.toggle('lite', LITE);
+  function T(n, t) { if (n.textContent !== t) n.textContent = t; }
 
   var GENS = [
     { id: 'sorriso', name: 'Sorriso de canto', desc: 'Meio sorriso, sem esforço.', cost: 15, rate: 0.3 },
@@ -998,15 +1024,16 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   var cv = $('fx'), cx = cv.getContext('2d'), parts = [], bolts = [], raf = 0, dpr = 1, lastT = 0;
   var sky = $('sky'), sx = sky.getContext('2d'), stars = [];
   function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    dpr = LITE ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
     cv.width = Math.floor(window.innerWidth * dpr); cv.height = Math.floor(window.innerHeight * dpr);
-    sky.width = cv.width; sky.height = cv.height;
+    sky.width = Math.floor(window.innerWidth); sky.height = Math.floor(window.innerHeight);
   }
   resize(); window.addEventListener('resize', resize);
   function startFx() { if (!raf) { lastT = performance.now(); raf = requestAnimationFrame(loop); } }
   function spawn(x, y, n, o) {
     o = o || {};
     if (REDUCED) n = Math.ceil(n / 4);
+    if (LITE) n = Math.ceil(n * 0.45);
     var spread = o.spread || 50;
     for (var i = 0; i < n; i++) {
       var a = Math.random() * Math.PI * 2, sp = (o.speed || 4.5) * (0.35 + Math.random());
@@ -1017,11 +1044,11 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
         h: (o.hue != null ? o.hue : curHue) + Math.random() * spread - spread / 2, rot: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.3
       });
     }
-    if (parts.length > 600) parts.splice(0, parts.length - 600);
+    var cap = LITE ? 110 : 320; if (parts.length > cap) parts.splice(0, parts.length - cap);
     startFx();
   }
   function bolt(x1, y1, x2, y2, hue) {
-    if (REDUCED) return;
+    if (REDUCED || LITE) return;
     var pts = [[x1, y1]], n = 9, dx = (x2 - x1) / n, dy = (y2 - y1) / n;
     for (var i = 1; i < n; i++) pts.push([x1 + dx * i + (Math.random() - 0.5) * 70, y1 + dy * i + (Math.random() - 0.5) * 70]);
     pts.push([x2, y2]);
@@ -1077,10 +1104,10 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   var skyLast = 0;
   function skyLoop(t) {
     requestAnimationFrame(skyLoop);
-    if (document.hidden || t - skyLast < 33) return;
+    if (LITE || document.hidden || t - skyLast < 40) return;
     var dt = (t - skyLast) / 1000; skyLast = t;
     var W = window.innerWidth, H = window.innerHeight;
-    sx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    sx.setTransform(1, 0, 0, 1, 0, 0);
     sx.clearRect(0, 0, W, H);
     sx.globalCompositeOperation = 'lighter';
     var spd = 1 + Math.min(combo, 100) * 0.06 + (frenzyLeft > 0 ? 5 : 0);
@@ -1121,7 +1148,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   }
   var floaters = 0;
   function floater(x, y, text, cls) {
-    if (floaters > 30) return;
+    if (floaters > (LITE ? 10 : 24)) return;
     floaters++;
     var f = document.createElement('div');
     f.className = 'floater' + (cls ? ' ' + cls : ''); f.textContent = text;
@@ -1260,7 +1287,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   });
 
   // ---------- Clique, combo, crítico ----------
-  var combo = 0, lastClick = 0;
+  var combo = 0, lastClick = 0, lastFx = 0, lastBump = 0;
   function farm(x, y) {
     var now = performance.now();
     combo = (now - lastClick < 800) ? combo + 1 : 1;
@@ -1286,10 +1313,14 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     } else {
       spawn(x, y, Math.round(n), { speed: 4.5, life: 700, size: 3 });
     }
-    el.orb.classList.remove('pop'); void el.orb.offsetWidth; el.orb.classList.add('pop');
-    if (combo >= 10 && combo % 5 === 0) { el.orb.classList.remove('wobble'); void el.orb.offsetWidth; el.orb.classList.add('wobble'); }
-    guy.classList.remove('hit'); void guy.getBoundingClientRect(); guy.classList.add('hit');
-    if (combo >= 25 && combo % 5 === 0) shock(x, y);
+    var fxOk = sup || crit || now - lastFx > 90;
+    if (fxOk) {
+      lastFx = now;
+      el.orb.classList.remove('pop'); void el.orb.offsetWidth; el.orb.classList.add('pop');
+      if (combo >= 10 && combo % 5 === 0) { el.orb.classList.remove('wobble'); el.orb.classList.add('wobble'); }
+      guy.classList.remove('hit'); guy.classList.add('hit');
+      if (combo >= 25 && combo % 5 === 0) shock(x, y);
+    }
     if (crit) { shock(x, y); shake(sup); flash(sup ? 50 : curHue, sup ? 0.6 : 0.3); }
     if (sup) {
       burstGuy(); fireSound(); say('SUPER CRÍTICO x67. O cara de fundo se levantou.');
@@ -1299,20 +1330,23 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     else if (crit && Math.random() < 0.5) say('Crítico! Cinco vezes mais aura.');
     blip(combo);
     renderCounter(); renderCombo();
-    if (S.best < FINAL) { el.aura.classList.remove('bump'); void el.aura.offsetWidth; el.aura.classList.add('bump'); }
+    if (!LITE && S.best < FINAL && now - lastBump > 120) { lastBump = now; el.aura.classList.remove('bump'); void el.aura.offsetWidth; el.aura.classList.add('bump'); }
   }
   el.orb.addEventListener('pointerdown', function (e) { farm(e.clientX, e.clientY); });
   el.orb.addEventListener('click', function (e) {
     if (e.detail === 0) { var c = orbCenter(); farm(c.x, c.y - c.y * 0.0); }
   });
+  var lastVi = '';
   function renderCombo() {
     var on = combo >= 3;
     el.combo.classList.toggle('on', on);
     el.combo.classList.toggle('hot', combo >= 25);
     el.combo.classList.toggle('max', combo >= 100);
     if (on) el.combo.textContent = 'COMBO x' + combo + (combo >= 100 ? ' MAX' : '  +' + combo + '%');
-    vignetteEl.style.setProperty('--vi', (Math.min(combo, 100) / 100).toFixed(2));
-    speedEl.style.opacity = combo >= 30 ? (Math.min((combo - 30) / 70, 1) * 0.85).toFixed(2) : '0';
+    if (!LITE) {
+      var vi = (Math.round(Math.min(combo, 100) / 10) / 10).toFixed(1);
+      if (vi !== lastVi) { lastVi = vi; vignetteEl.style.setProperty('--vi', vi); speedEl.style.opacity = combo >= 30 ? (Math.min((combo - 30) / 70, 1) * 0.85).toFixed(2) : '0'; }
+    }
   }
 
   // ---------- Aura rara e modo Sigma ----------
@@ -1397,6 +1431,15 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     save(); update();
   });
 
+  function fxLabel() { $('fxBtn').textContent = 'Efeitos: ' + (LITE ? 'Leve' : 'Completo'); }
+  fxLabel();
+  $('fxBtn').addEventListener('click', function () {
+    LITE = !LITE;
+    try { localStorage.setItem('aura67.fx', LITE ? 'lite' : 'full'); } catch (e) {}
+    document.body.classList.toggle('lite', LITE); resize(); fxLabel();
+    say(LITE ? 'Efeitos leves: mais fluido em aparelho fraco.' : 'Efeitos completos ligados.');
+  });
+
   var resetArmed = false, resetTimer;
   el.reset.addEventListener('click', function () {
     if (!resetArmed) {
@@ -1479,9 +1522,9 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   function renderCounter() {
     var inf = S.best >= FINAL;
     document.body.classList.toggle('inf', inf);
-    el.aura.textContent = inf ? '∞' : fmt(S.aura);
-    $('miniAura').textContent = el.aura.textContent;
-    el.exact.textContent = inf ? fmt(S.aura) + ' de aura' : (S.aura >= 1000 && S.aura < 1e15 ? fmtInt(S.aura) : '');
+    T(el.aura, inf ? '∞' : fmt(S.aura));
+    T($('miniAura'), el.aura.textContent);
+    T(el.exact, inf ? fmt(S.aura) + ' de aura' : (S.aura >= 1000 && S.aura < 1e15 ? fmtInt(S.aura) : ''));
   }
 
   function update() {
@@ -1490,14 +1533,14 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     lastLevel = li;
     renderCounter();
     var br = baseRate();
-    el.rate.textContent = fmt(br) + ' aura/s';
-    $('miniRate').textContent = el.rate.textContent;
-    el.totmult.textContent = 'multiplicador total x' + fmt(globalMult());
-    el.level.textContent = L.name;
-    var h = li === LEVELS.length - 1 ? (Date.now() / 25) % 360 : L.h;
+    T(el.rate, fmt(br) + ' aura/s');
+    T($('miniRate'), el.rate.textContent);
+    T(el.totmult, 'multiplicador total x' + fmt(globalMult()));
+    T(el.level, L.name);
+    var h = li === LEVELS.length - 1 ? (LITE ? 300 : (Date.now() / 60) % 360) : L.h;
     curHue = h;
     var hh = Math.round(h);
-    if (hh !== lastBh) { lastBh = hh; document.documentElement.style.setProperty('--bh', hh); }
+    if (lastBh < 0 || Math.abs(hh - lastBh) >= 8) { lastBh = hh; document.documentElement.style.setProperty('--bh', hh); }
     el.orb.style.setProperty('--h', h.toFixed(0));
     el.wrap.style.setProperty('--h', h.toFixed(0));
     el.orb.style.setProperty('--g', (li / (LEVELS.length - 1)).toFixed(2));
@@ -1510,49 +1553,49 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       if (L.min === 0) p = Math.max(0, Math.min(1, S.best / N.min));
       el.fill.style.width = (p * 100).toFixed(1) + '%';
       el.bar.setAttribute('aria-valuenow', Math.round(p * 100));
-      el.nextname.textContent = 'Próximo: ' + N.name;
-      el.nextneed.textContent = fmt(S.best) + ' / ' + fmt(N.min);
+      T(el.nextname, 'Próximo: ' + N.name);
+      T(el.nextneed, fmt(S.best) + ' / ' + fmt(N.min));
     } else {
       el.fill.style.width = '100%';
       el.bar.setAttribute('aria-valuenow', 100);
-      el.nextname.textContent = 'Nível máximo. Sua aura não acaba.';
-      el.nextneed.textContent = '';
+      T(el.nextname, 'Nível máximo. Sua aura não acaba.');
+      T(el.nextneed, '');
     }
 
     // ego
     var g = egoGain();
-    el.egoN.textContent = fmt(S.ego);
-    el.egoMult.textContent = 'x' + fmt(egoMult());
-    el.egoGain.textContent = '+' + fmt(g);
+    T(el.egoN, fmt(S.ego));
+    T(el.egoMult, 'x' + fmt(egoMult()));
+    T(el.egoGain, '+' + fmt(g));
     el.egoBtn.disabled = g < 1;
     el.egoBtn.classList.toggle('armed', egoArmed);
-    el.egoBtn.textContent = g < 1 ? 'Junte 5K de aura na rodada para inflar' : (egoArmed ? 'Confirmar: zera aura e geradores' : 'Inflar o ego (+' + fmt(g) + ')');
-    el.egoAv.textContent = fmt(egoAvail()) + ' de ego para gastar';
+    T(el.egoBtn, g < 1 ? 'Junte 5K de aura na rodada para inflar' : (egoArmed ? 'Confirmar: zera aura e geradores' : 'Inflar o ego (+' + fmt(g) + ')'));
+    T(el.egoAv, fmt(egoAvail()) + ' de ego para gastar');
 
     // loja do ego
     EUP.forEach(function (u, i) {
       var row = euRows[i], lv = S.eu[u.id] || 0, c = euCost(u), maxed = lv >= u.max;
-      row.meta.textContent = 'Nível ' + lv + ' de ' + u.max;
-      row.c.textContent = maxed ? 'Máximo' : fmt(c);
+      T(row.meta, 'Nível ' + lv + ' de ' + u.max);
+      T(row.c, maxed ? 'Máximo' : fmt(c));
       row.btn.disabled = maxed || egoAvail() < c;
       row.li.classList.toggle('can', !row.btn.disabled);
     });
 
     // pose
     var pc = poseCost();
-    poseCostEl.textContent = fmt(pc);
+    T(poseCostEl, fmt(pc));
     poseBtn.disabled = S.aura < pc;
     poseRow.classList.toggle('can', !poseBtn.disabled);
-    poseMeta.textContent = 'Nível ' + S.click + ' · ' + fmt(clickBase()) + ' por clique';
+    T(poseMeta, 'Nível ' + S.click + ' · ' + fmt(clickBase()) + ' por clique');
 
     // geradores
     var gm = globalMult();
     GENS.forEach(function (gen, i) {
       var row = genRows[i], n = qty(i), c = genCost(i, n);
       row.li.hidden = !(i < 3 || ownedOf(i) > 0 || S.best >= gen.cost * 0.1);
-      row.meta.textContent = 'x' + fmtInt(ownedOf(i)) + ' · ' + fmt(gen.rate * gm) + '/s cada';
-      row.q.textContent = '+' + n;
-      row.c.textContent = fmt(c);
+      T(row.meta, 'x' + fmtInt(ownedOf(i)) + ' · ' + fmt(gen.rate * gm) + '/s cada');
+      T(row.q, '+' + n);
+      T(row.c, fmt(c));
       row.btn.disabled = S.aura < c;
       row.li.classList.toggle('can', !row.btn.disabled);
     });
@@ -1564,7 +1607,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       b.classList.toggle('owned', own);
       b.disabled = own || S.aura < m.c;
       b.classList.toggle('can', !b.disabled);
-      b.querySelector('span').textContent = own ? 'Ativo: x' + m.x + ' em tudo' : 'x' + m.x + ' em tudo · ' + fmt(m.c);
+      T(b.querySelector('span'), own ? 'Ativo: x' + m.x + ' em tudo' : 'x' + m.x + ' em tudo · ' + fmt(m.c));
     });
 
     // conquistas
@@ -1572,8 +1615,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       if (!S.ach[a.id] && a.t(S)) { S.ach[a.id] = 1; say('Conquista: ' + a.n + '. +2% de aura.'); save(); }
       achChips[i].classList.toggle('on', !!S.ach[a.id]);
     });
-    el.achnote.textContent = achCount() + ' de ' + ACH.length + ' conquistas · bônus de aura x' + fmt(achBonus()) + ' · bônus de nível x' + fmt(levelBonus());
-    el.stats.textContent = 'Melhor combo ' + S.bestCombo + ' · críticos ' + fmtInt(S.crits) + ' · auras raras ' + S.golds;
+    T(el.achnote, achCount() + ' de ' + ACH.length + ' conquistas · bônus de aura x' + fmt(achBonus()) + ' · bônus de nível x' + fmt(levelBonus()));
+    T(el.stats, 'Melhor combo ' + S.bestCombo + ' · críticos ' + fmtInt(S.crits) + ' · auras raras ' + S.golds);
   }
 
   // ---------- Loop principal ----------

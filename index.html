@@ -19,7 +19,7 @@
   --ego: #ffc53d;
   --ego-ink: #2a1c00;
   --ok: #5ce1b0;
-  --orb: min(62vw, 270px);
+  --orb: min(46vw, 200px);
   --font-display: "Bungee", "Impact", "Arial Black", sans-serif;
   --font-body: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
   color-scheme: dark;
@@ -132,7 +132,7 @@ h1 { font-family: var(--font-display); font-size: clamp(26px, 6vw, 38px); line-h
 }
 .orb:active { transform: scale(.955); }
 .orb .n {
-  position: relative; font-family: var(--font-display); font-size: clamp(72px, 21vw, 116px); color: #fff; line-height: 1;
+  position: relative; font-family: var(--font-display); font-size: clamp(54px, 15vw, 100px); color: #fff; line-height: 1;
   text-shadow: 0 4px 0 hsl(var(--h) 80% 30% / .7), 0 0 30px hsl(var(--h) 100% 85% / .8);
   pointer-events: none;
 }
@@ -396,9 +396,9 @@ body.inf .big { background: linear-gradient(90deg, #ff4fd8, #ffc53d, #5ce1b0, #8
   .app.shake-sm, .app.shake-lg { animation: none; }
 }
 /* ===== Cara fazendo o 67 ===== */
-.bg-guy { opacity: .4; --gh: min(100vh, 880px, 165vw); }
-@media (min-width: 880px) { .bg-guy { opacity: .42; } }
-.bg-guy .grow { transform-origin: 200px 700px; transform: scale(var(--gs, .84)); transition: transform 1s ease-out; }
+.bg-guy { opacity: .55; --gh: min(100vh, 880px, 165vw); }
+@media (min-width: 880px) { .bg-guy { opacity: .5; } }
+.bg-guy .grow { transform-origin: 200px 384px; transform: scale(var(--gs, .84)); transition: transform 1s ease-out; }
 .bg-guy .sc { opacity: 0; transition: opacity 1.2s; }
 .bg-guy[data-scene="grass"] .sc-grass, .bg-guy[data-scene="city"] .sc-city, .bg-guy[data-scene="space"] .sc-space,
 .bg-guy[data-scene="deep"] .sc-deep, .bg-guy[data-scene="inf"] .sc-inf { opacity: 1; }
@@ -417,8 +417,15 @@ body.inf .big { background: linear-gradient(90deg, #ff4fd8, #ffc53d, #5ce1b0, #8
 body.lite .bg-guy:not(.pump) .arm, body.lite .bg-guy:not(.pump) .fore { animation: none; }
 @media (prefers-reduced-motion: reduce) { .bg-guy .arm, .bg-guy .fore { animation: none !important; } }
 
+/* Boneco preso à bola: a bola fica no peito, uma mão de cada lado */
+.orb-wrap .bg-guy {
+  --gw: min(100vw, calc((var(--orb) + 110px) * 1.3));
+  position: absolute; left: 50%; top: 50%; bottom: auto; transform: none; translate: -50% -54.86%;
+  width: var(--gw); height: calc(var(--gw) * 1.75); z-index: -1;
+}
+
 /* ===== Abas e orientação ===== */
-@media (min-width: 880px) { :root { --orb: 290px; } }
+@media (min-width: 880px) { :root { --orb: 250px; } }
 .hint { margin: 0 0 10px; color: var(--muted); font-size: 13px; }
 .tabbar { display: flex; gap: 6px; }
 .tabbar button { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 4px 8px; border: 1px solid var(--line); background: var(--panel); color: var(--muted); border-radius: 12px; cursor: pointer; font-weight: 800; font-size: 12px; }
@@ -495,6 +502,42 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 <div class="vignette" id="vignette" aria-hidden="true"></div>
 <div class="speedlines" id="speed" aria-hidden="true"></div>
 <div class="lvlbanner" id="lvlbanner" hidden aria-live="polite"></div>
+
+<div class="frenzy-bg" aria-hidden="true"></div>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="flash" id="flash" aria-hidden="true"></div>
+<button class="gold" id="gold" type="button" hidden aria-label="Aura rara: toque para ativar o modo Sigma x5">67<small>AURA RARA</small></button>
+
+<button class="mini" id="mini" type="button" aria-hidden="true" tabindex="-1"><b id="miniAura">0</b><span id="miniRate"></span></button>
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <h1>Aura 67</h1>
+      <small>fazenda de aura + ego</small>
+    </div>
+    <div class="level" id="level">NPC</div>
+    <div class="acct" id="acct" hidden>
+      <button class="ghost solid" id="rankBtn" type="button">Ranking</button>
+      <span class="who" id="who" hidden></span>
+      <button class="ghost" id="loginBtn" type="button">Entrar</button>
+      <button class="ghost" id="logoutBtn" type="button" hidden>Sair</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="stage" aria-label="Aura">
+      <div class="counter">
+        <div class="big" id="aura">0</div>
+        <div class="label">aura</div>
+        <div class="exact" id="exact"></div>
+        <div class="rate" id="rate">0/s</div>
+        <div class="totmult" id="totmult"></div>
+      </div>
+
+      <div class="frenzy-banner" id="frenzyBanner" hidden></div>
+
+      <div class="orb-wrap" id="orbWrap" data-lv="0">
 <svg class="bg-guy" id="guy" data-lv="0" viewBox="0 0 400 700" aria-hidden="true" focusable="false">
   <defs>
     <radialGradient id="ag" cx="50%" cy="50%" r="50%">
@@ -566,41 +609,6 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   </g>
   <text class="burst-text" x="200" y="150">67</text>
 </svg>
-<div class="frenzy-bg" aria-hidden="true"></div>
-<canvas id="fx" aria-hidden="true"></canvas>
-<div class="flash" id="flash" aria-hidden="true"></div>
-<button class="gold" id="gold" type="button" hidden aria-label="Aura rara: toque para ativar o modo Sigma x5">67<small>AURA RARA</small></button>
-
-<button class="mini" id="mini" type="button" aria-hidden="true" tabindex="-1"><b id="miniAura">0</b><span id="miniRate"></span></button>
-
-<div class="app" id="app">
-  <header class="top">
-    <div class="brand">
-      <h1>Aura 67</h1>
-      <small>fazenda de aura + ego</small>
-    </div>
-    <div class="level" id="level">NPC</div>
-    <div class="acct" id="acct" hidden>
-      <button class="ghost solid" id="rankBtn" type="button">Ranking</button>
-      <span class="who" id="who" hidden></span>
-      <button class="ghost" id="loginBtn" type="button">Entrar</button>
-      <button class="ghost" id="logoutBtn" type="button" hidden>Sair</button>
-    </div>
-  </header>
-
-  <main class="grid">
-    <section class="stage" aria-label="Aura">
-      <div class="counter">
-        <div class="big" id="aura">0</div>
-        <div class="label">aura</div>
-        <div class="exact" id="exact"></div>
-        <div class="rate" id="rate">0/s</div>
-        <div class="totmult" id="totmult"></div>
-      </div>
-
-      <div class="frenzy-banner" id="frenzyBanner" hidden></div>
-
-      <div class="orb-wrap" id="orbWrap" data-lv="0">
         <div class="rings" aria-hidden="true"><i class="ring-c"></i><i class="ring-x a"></i><i class="ring-x b"></i><i class="orbit o1"><b></b></i><i class="orbit o2"><b></b></i><i class="orbit o3"><b></b></i></div>
         <div class="combo" id="combo"></div>
         <button class="orb" id="orb" type="button" aria-label="Farmar aura"><span class="core"><i class="swirl"></i><i class="gloss"></i><span class="n">67</span></span></button>

@@ -492,6 +492,44 @@ body.lite .modal { background: rgba(6, 4, 14, .9); }
 .rankbox { max-height: 52vh; overflow: auto; }
 @media (max-width: 480px) { .rank th.lv, .rank td.lv { display: none; } }
 
+/* Haters, chefes e desafios relâmpago */
+.haters { position: fixed; inset: 0; z-index: 24; pointer-events: none; }
+.hater {
+  --s: 56px; position: fixed; left: 0; top: 0; width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  border: 0; padding: 0; background: none; cursor: crosshair; pointer-events: auto; touch-action: manipulation; will-change: transform; color: #fff;
+}
+.hater .face {
+  position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; font-size: calc(var(--s) * .56); line-height: 1;
+  background: radial-gradient(circle at 35% 30%, #ff9b9b, #d7263d 55%, #5a0616); border: 2px solid #ffd0d0;
+  box-shadow: 0 0 18px 4px rgba(255, 40, 70, .55); animation: hWobble 1.1s ease-in-out infinite;
+}
+.hater.h-fast .face { background: radial-gradient(circle at 35% 30%, #c9fff0, #19c39a 55%, #04503d); border-color: #c9fff0; box-shadow: 0 0 16px 4px rgba(25, 195, 154, .6); animation-duration: .45s; }
+.hater.h-tank .face { background: radial-gradient(circle at 35% 30%, #d9c9ff, #6b3fd4 55%, #22104f); border-color: #d9c9ff; box-shadow: 0 0 20px 6px rgba(107, 63, 212, .6); }
+.hater.h-boss .face { background: radial-gradient(circle at 35% 30%, #ffb36b, #e0101e 50%, #2b0006); border: 3px solid #ffc53d; box-shadow: 0 0 34px 12px rgba(255, 40, 40, .6), 0 0 70px 20px rgba(255, 197, 61, .3); animation-duration: 1.8s; }
+.hater small {
+  position: absolute; top: -18px; left: 50%; translate: -50% 0; white-space: nowrap; font-family: var(--font-body); font-weight: 800; font-size: 11px;
+  color: #ffd0d0; text-shadow: 0 1px 0 #000, 0 0 6px #000; pointer-events: none;
+}
+.hater.h-boss small { font-family: var(--font-display); font-weight: 400; font-size: 13px; color: #ffc53d; top: -22px; }
+.hater .hp { position: absolute; left: 8%; right: 8%; bottom: -9px; height: 5px; border-radius: 3px; background: rgba(0, 0, 0, .6); overflow: hidden; pointer-events: none; }
+.hater .hp i { display: block; height: 100%; width: 100%; background: linear-gradient(90deg, #ff4f6d, #ffc53d); transition: width .12s; }
+.hater.hit .face { animation: hHit .18s ease-out; }
+.hater.die { pointer-events: none; transition: opacity .28s, scale .28s; opacity: 0; scale: 1.6; }
+@keyframes hWobble { 0%, 100% { rotate: -8deg; scale: 1; } 50% { rotate: 8deg; scale: 1.06; } }
+@keyframes hHit { 0% { scale: 1; filter: brightness(2.2); } 40% { scale: .8; } 100% { scale: 1; filter: none; } }
+.floater.bad { color: #ff6b81; text-shadow: 0 2px 0 rgba(80, 0, 10, .9), 0 0 16px #ff2d4a; font-size: clamp(20px, 6vw, 28px); animation-duration: 1.3s; }
+.hdanger { position: fixed; inset: 0; z-index: 13; pointer-events: none; opacity: 0; transition: opacity .5s; box-shadow: inset 0 0 120px 30px rgba(255, 30, 60, .45); }
+body.danger .hdanger { opacity: 1; animation: hDanger 1.4s ease-in-out infinite; }
+@keyframes hDanger { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+.chall {
+  width: 100%; text-align: center; padding: 9px 12px; border-radius: 12px; font-family: var(--font-display); font-size: 14px; letter-spacing: .03em;
+  color: #0c0918; background: linear-gradient(90deg, #5ce1e6, #ffc53d, #5ce1e6); background-size: 200% 100%; animation: flow 2.4s linear infinite;
+  box-shadow: 0 0 22px -4px #5ce1e6;
+}
+.chall.turbo { background: linear-gradient(90deg, #ff4fd8, #ffc53d, #ff4fd8); background-size: 200% 100%; box-shadow: 0 0 22px -4px #ff4fd8; }
+.chall.urgent { animation: flow 2.4s linear infinite, goldPulse .5s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .hater .face, .chall, body.danger .hdanger { animation: none; } }
+
 </style>
 <script>
 /* CONFIGURAÇÃO DO RANKING (Supabase): preencha url e key (Project Settings > API). A chave 'anon' é pública por design. */
@@ -506,6 +544,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 <div class="frenzy-bg" aria-hidden="true"></div>
 <canvas id="fx" aria-hidden="true"></canvas>
 <div class="flash" id="flash" aria-hidden="true"></div>
+<div class="hdanger" aria-hidden="true"></div>
+<div class="haters" id="haters"></div>
 <button class="gold" id="gold" type="button" hidden aria-label="Aura rara: toque para ativar o modo Sigma x5">67<small>AURA RARA</small></button>
 
 <button class="mini" id="mini" type="button" aria-hidden="true" tabindex="-1"><b id="miniAura">0</b><span id="miniRate"></span></button>
@@ -536,6 +576,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       </div>
 
       <div class="frenzy-banner" id="frenzyBanner" hidden></div>
+      <div class="chall" id="chall" hidden aria-live="polite"></div>
 
       <div class="orb-wrap" id="orbWrap" data-lv="0">
 <svg class="bg-guy" id="guy" data-lv="0" viewBox="0 0 400 700" aria-hidden="true" focusable="false">
@@ -825,6 +866,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     { id: 'rizz', name: 'Ego denso', desc: '+10% de ego ao inflar.', c: 45, g: 2.1, max: 30, icon: 'coroa' },
     { id: 'start', name: 'Aura de nascença', desc: 'Começa cada rodada com 67 x 6 por nível de aura.', c: 38, g: 3, max: 12, icon: 'sorriso' },
     { id: 'gold', name: 'Ímã de aura rara', desc: 'A aura rara aparece mais rápido e o modo Sigma dura +5s.', c: 60, g: 2.3, max: 10, icon: 'lenda' },
+    { id: 'guard', name: 'Segurança VIP', desc: 'Derruba haters sozinho: 1 golpe a cada 6s, -0,5s por nível.', c: 25, g: 2.2, max: 10, icon: 'oculos' },
     { id: 'power', name: 'Poder supremo', desc: 'x1,5 em toda a aura, para sempre.', c: 150, g: 4, max: 20, icon: 'super' }
   ];
 
@@ -856,13 +898,18 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     { id: 'ego1k', n: '1000 de ego', t: function (s) { return s.ego >= 1000; } },
     { id: 'invest', n: 'Ego investido', t: function (s) { return s.egoSpent >= 100; } },
     { id: 'lv16', n: 'Nível 16', t: function (s) { return levelOf(s.best) >= 16; } },
-    { id: 'inf2', n: 'Aura infinita', t: function (s) { return s.best >= FINAL; } }
+    { id: 'inf2', n: 'Aura infinita', t: function (s) { return s.best >= FINAL; } },
+    { id: 'h1', n: 'Primeiro hater derrubado', t: function (s) { return s.haters >= 1; } },
+    { id: 'h100', n: '100 haters derrubados', t: function (s) { return s.haters >= 100; } },
+    { id: 'boss1', n: 'Chefe hater derrotado', t: function (s) { return s.bosses >= 1; } },
+    { id: 'ch10', n: '10 desafios relâmpago', t: function (s) { return s.chall >= 10; } }
   ];
   var MSGS = [
     'Aura +67 detectada.', 'O corredor abriu caminho para você.', 'Ninguém viu você tropeçar. Aura intacta.',
     'Seu ego pediu mais espaço.', 'Olhar 67 ativado.', 'Trilha sonora tocando só para você.',
     'O vento mudou de direção por respeito.', 'Alguém no fundo disse "que aura".', 'Mais um dia sendo o protagonista.',
-    'O cara de fundo aprovou o último clique.', 'Clique rápido para montar combo.', 'Fique de olho na aura rara dourada.'
+    'O cara de fundo aprovou o último clique.', 'Clique rápido para montar combo.', 'Fique de olho na aura rara dourada.',
+    'Haters cortam sua produção. Derrube antes que encostem no 67.', 'Desafio relâmpago cumprido = turbo x3.'
   ];
 
   var ICONS = {
@@ -896,7 +943,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 
   function zeros() { var a = []; for (var i = 0; i < MULTS.length; i++) a.push(0); return a; }
   function fresh() {
-    return { aura: 0, earned: 0, run: 0, best: 0, clicks: 0, ego: 0, egoSpent: 0, inflations: 0, click: 0, crits: 0, bestCombo: 0, golds: 0, gens: {}, mults: zeros(), eu: {}, ach: {} };
+    return { aura: 0, earned: 0, run: 0, best: 0, clicks: 0, ego: 0, egoSpent: 0, inflations: 0, click: 0, crits: 0, bestCombo: 0, golds: 0, haters: 0, bosses: 0, chall: 0, gens: {}, mults: zeros(), eu: {}, ach: {} };
   }
   function load(o0) {
     var s = fresh();
@@ -904,7 +951,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       var raw = o0 ? null : localStorage.getItem(KEY);
       var o = o0 || (raw ? JSON.parse(raw) : null);
       if (o) {
-        ['aura', 'earned', 'run', 'best', 'clicks', 'ego', 'egoSpent', 'inflations', 'click', 'crits', 'bestCombo', 'golds'].forEach(function (k) {
+        ['aura', 'earned', 'run', 'best', 'clicks', 'ego', 'egoSpent', 'inflations', 'click', 'crits', 'bestCombo', 'golds', 'haters', 'bosses', 'chall'].forEach(function (k) {
           if (typeof o[k] === 'number' && isFinite(o[k])) s[k] = o[k];
         });
         if (o.gens && typeof o.gens === 'object') GENS.forEach(function (g) { if (typeof o.gens[g.id] === 'number') s.gens[g.id] = o.gens[g.id]; });
@@ -930,7 +977,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   function powerMult() { return Math.pow(1.5, S.eu.power || 0); }
   function levelBonus() { return 1 + 0.06 * levelIndex(); }
   function achBonus() { return 1 + 0.02 * achCount(); }
-  function globalMult() { return multAll() * egoMult() * powerMult() * levelBonus() * achBonus() * (frenzyLeft > 0 ? 5 : 1); }
+  function globalMult() { return multAll() * egoMult() * powerMult() * levelBonus() * achBonus() * (frenzyLeft > 0 ? 5 : 1) * haterMult() * (turboLeft > 0 ? 3 : 1); }
   function baseRate() { var r = 0; GENS.forEach(function (g) { r += (S.gens[g.id] || 0) * g.rate; }); return r * globalMult(); }
   function clickBase() { return ((1 + S.click) * Math.pow(2, Math.floor(S.click / 10)) * globalMult()) + baseRate() * 0.025; }
   function egoGain() { return Math.floor(Math.pow(S.run / 5000, 0.25) * (1 + 0.1 * (S.eu.rizz || 0))); }
@@ -1134,7 +1181,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   var curHue = 265, lastBh = -1;
 
   var cv = $('fx'), cx = cv.getContext('2d'), parts = [], bolts = [], raf = 0, dpr = 1, lastT = 0;
-  var sky = $('sky'), sx = sky.getContext('2d'), stars = [];
+  var sky = $('sky'), sx = sky.getContext('2d'), stars = [], meteors = [];
   function resize() {
     dpr = LITE ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
     cv.width = Math.floor(window.innerWidth * dpr); cv.height = Math.floor(window.innerHeight * dpr);
@@ -1234,6 +1281,16 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       var px = st.x * W, py = st.y * H;
       if (spd > 4) { sx.lineWidth = st.z * 1.4; sx.beginPath(); sx.moveTo(px, py); sx.lineTo(px, py + st.z * spd * 4); sx.stroke(); }
       else { sx.beginPath(); sx.arc(px, py, st.z * 1.6, 0, 6.2832); sx.fill(); }
+    }
+    // Estrelas cadentes: ficam mais frequentes conforme o nível
+    if (Math.random() < 0.006 + levelIndex() * 0.0012) meteors.push({ x: Math.random() * W * 1.2, y: -20, v: 500 + Math.random() * 500, l: 0, max: 1.4 });
+    for (var m = meteors.length - 1; m >= 0; m--) {
+      var mt = meteors[m]; mt.l += dt;
+      if (mt.l >= mt.max) { meteors.splice(m, 1); continue; }
+      mt.x -= mt.v * dt * 0.6; mt.y += mt.v * dt;
+      var ma = 1 - mt.l / mt.max, gr = sx.createLinearGradient(mt.x, mt.y, mt.x + 54, mt.y - 90);
+      gr.addColorStop(0, 'hsla(' + curHue.toFixed(0) + ',100%,92%,' + ma.toFixed(2) + ')'); gr.addColorStop(1, 'hsla(' + curHue.toFixed(0) + ',100%,70%,0)');
+      sx.strokeStyle = gr; sx.lineWidth = 2; sx.beginPath(); sx.moveTo(mt.x, mt.y); sx.lineTo(mt.x + 54, mt.y - 90); sx.stroke();
     }
   }
   if (!REDUCED) requestAnimationFrame(skyLoop);
@@ -1405,6 +1462,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     combo = (now - lastClick < 800) ? combo + 1 : 1;
     lastClick = now;
     if (combo > S.bestCombo) S.bestCombo = combo;
+    if (chall) { if (chall.type === 'clicks') chall.n += 1; else if (chall.type === 'combo' && combo > chall.n) chall.n = combo; }
     var cm = 1 + Math.min(combo, 100) * 0.01;
     var v = clickBase() * cm, crit = false, sup = false;
     var cc = Math.min(0.04 + 0.02 * (S.eu.crit || 0), 0.4);
@@ -1487,6 +1545,189 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     update();
   });
 
+  // ---------- Haters, chefes e desafios relâmpago ----------
+  // Inimigos que andam até o 67: enquanto vivos cortam a produção; se encostarem, roubam aura e quebram o combo.
+  // Força, velocidade e frequência crescem com o nível, para o jogo não ficar fácil.
+  var hatersEl = $('haters'), challEl = $('chall');
+  var haters = [], haterAt = Date.now() + 25000, bossAt = Date.now() + 120000, hRaf = 0, hLast = 0, guardT = 0;
+  var turboLeft = 0, chall = null, challAt = Date.now() + 60000;
+  var HNAMES = ['Hater', 'Cringe', 'NPC invejoso', 'Comentário tóxico', 'Print do ex', 'Fofoqueiro', 'Ranço', 'Vergonha alheia'];
+  var BNAMES = ['Hater supremo', 'Rei do cringe', 'Fofoqueiro-mor', 'Chefão do ranço'];
+  function haterMult() {
+    var m = 1;
+    for (var i = 0; i < haters.length; i++) m *= haters[i].boss ? 0.6 : 0.9;
+    return Math.max(m, 0.3);
+  }
+  function pickKind(li) {
+    var r = Math.random();
+    if (li >= 8 && r < 0.18) return 'tank';
+    if (li >= 4 && r < 0.45) return 'fast';
+    return 'n';
+  }
+  function spawnHater(kind) {
+    var li = levelIndex(), W = window.innerWidth, H = window.innerHeight, m = 50, x, y;
+    var side = Math.floor(Math.random() * 4);
+    if (side === 0) { x = -m; y = Math.random() * H; } else if (side === 1) { x = W + m; y = Math.random() * H; }
+    else if (side === 2) { x = Math.random() * W; y = -m; } else { x = Math.random() * W; y = H + m; }
+    var k = kind || pickKind(li), boss = k === 'boss';
+    var hp = boss ? 25 + li * 4 : k === 'tank' ? 4 + Math.floor(li / 3) : k === 'fast' ? 1 : 1 + Math.floor(li / 6);
+    var sp = (38 + li * 3.2) * (k === 'fast' ? 1.8 : k === 'tank' ? 0.55 : boss ? 0.32 : 1);
+    var size = boss ? 110 : k === 'tank' ? 74 : k === 'fast' ? 46 : 56;
+    var name = boss ? BNAMES[Math.floor(Math.random() * BNAMES.length)] : HNAMES[Math.floor(Math.random() * HNAMES.length)];
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'hater h-' + k; b.tabIndex = -1;
+    b.setAttribute('aria-label', name + ': toque para derrubar');
+    b.style.setProperty('--s', size + 'px');
+    b.innerHTML = '<span class="face"></span><small></small><i class="hp"><i></i></i>';
+    b.querySelector('.face').textContent = boss ? '👿' : k === 'tank' ? '🤡' : k === 'fast' ? '😤' : '😒';
+    b.querySelector('small').textContent = name;
+    var h = { el: b, k: k, boss: boss, name: name, x: x, y: y, hp: hp, max: hp, sp: sp, ph: Math.random() * 6.28, t: 0, size: size, bar: b.querySelector('.hp i') };
+    b.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+    b.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); hitHater(h, e.clientX, e.clientY, 1); });
+    hatersEl.appendChild(b);
+    haters.push(h);
+    if (boss) {
+      showBanner('Chefe chegando', name);
+      shake(true); flash(0, 0.45);
+      say(name + ' quer roubar sua aura. Clique nele até cair.');
+    }
+    if (!hRaf) { hLast = performance.now(); hRaf = requestAnimationFrame(haterLoop); }
+    return h;
+  }
+  function removeHater(h) {
+    if (h.dead) return;
+    h.dead = true;
+    var i = haters.indexOf(h); if (i >= 0) haters.splice(i, 1);
+    h.el.classList.add('die');
+    setTimeout(function () { if (h.el.parentNode) h.el.parentNode.removeChild(h.el); }, 320);
+  }
+  function clearHaters() { haters.slice().forEach(removeHater); }
+  function haterLoop(t) {
+    var dt = Math.min(t - hLast, 50) / 1000; hLast = t;
+    var W = window.innerWidth, H = window.innerHeight, c = orbCenter();
+    // 67 fora da tela (celular rolado para a loja): eles esperam na borda e não roubam
+    var vis = c.y > 0 && c.y < H;
+    var tx = Math.max(40, Math.min(W - 40, c.x)), ty = Math.max(80, Math.min(H - 40, c.y));
+    for (var i = haters.length - 1; i >= 0; i--) {
+      var h = haters[i]; h.t += dt;
+      var dx = tx - h.x, dy = ty - h.y, d = Math.sqrt(dx * dx + dy * dy) || 1;
+      if (vis && d < 30 + h.size * 0.35) { haterSteal(h); continue; }
+      if (!vis && d < 90) { h.el.style.transform = 'translate(' + h.x.toFixed(1) + 'px,' + h.y.toFixed(1) + 'px)'; continue; }
+      var ux = dx / d, uy = dy / d;
+      var wob = h.k === 'fast' ? Math.sin(h.t * 7 + h.ph) * 1.2 : Math.sin(h.t * 2.2 + h.ph) * 0.5;
+      h.x += (ux - uy * wob) * h.sp * dt; h.y += (uy + ux * wob) * h.sp * dt;
+      h.el.style.transform = 'translate(' + h.x.toFixed(1) + 'px,' + h.y.toFixed(1) + 'px)';
+    }
+    hRaf = haters.length ? requestAnimationFrame(haterLoop) : 0;
+  }
+  function haterSteal(h) {
+    var li = levelIndex();
+    var pct = h.boss ? Math.min(0.12 + li * 0.006, 0.25) : Math.min(0.02 + li * 0.004, 0.12) * (h.k === 'tank' ? 1.5 : 1);
+    var st = S.aura * pct;
+    S.aura -= st;
+    removeHater(h);
+    combo = 0; renderCombo();
+    floater(h.x, h.y, '-' + fmt(st) + ' roubado', 'bad');
+    spawn(h.x, h.y, h.boss ? 60 : 22, { hue: 355, spread: 30, speed: h.boss ? 7 : 4 });
+    shake(h.boss); flash(355, h.boss ? 0.5 : 0.25);
+    say(h.name + ' roubou ' + Math.round(pct * 100) + '% da sua aura e quebrou o combo.');
+    update();
+  }
+  function hitHater(h, x, y, dmg) {
+    if (h.dead) return;
+    h.hp -= dmg;
+    h.el.classList.remove('hit'); void h.el.offsetWidth; h.el.classList.add('hit');
+    spawn(x, y, h.boss ? 12 : 8, { hue: 355, spread: 60, speed: 3.5, life: 450 });
+    blip(20);
+    if (h.hp > 0) { h.bar.style.width = (h.hp / h.max * 100).toFixed(1) + '%'; if (h.boss) shake(false); return; }
+    var li = levelIndex();
+    var rw = Math.max(baseRate() * (4 + li * 0.25), clickBase() * 6) * (h.boss ? 25 : h.k === 'tank' ? 3 : 1);
+    removeHater(h);
+    add(rw); S.haters += 1; if (h.boss) S.bosses += 1;
+    if (chall && chall.type === 'haters') chall.n += 1;
+    floater(x, y, (h.boss ? 'CHEFE DERRUBADO +' : '+') + fmt(rw), h.boss ? 'super' : 'crit');
+    spawn(x, y, h.boss ? 120 : 26, { speed: h.boss ? 8 : 5, life: 900, hue: h.boss ? 45 : 355, spread: 120, shape: 'star' });
+    shock(x, y);
+    if (h.boss) {
+      shake(true); flash(45, 0.6); burstGuy(); fireSound(); confetti();
+      for (var i = 0; i < 3; i++) firework(x + (Math.random() - 0.5) * 300, y + (Math.random() - 0.5) * 200, 20 + i * 40);
+      showBanner('Chefe derrotado', h.name);
+      say(h.name + ' caiu. Aura de respeito: +' + fmt(rw) + '.');
+    } else if (Math.random() < 0.3) say(h.name + ' derrubado. Aura intacta.');
+    update();
+  }
+  function hasBoss() { for (var i = 0; i < haters.length; i++) if (haters[i].boss) return true; return false; }
+  function nearestHater() {
+    var c = orbCenter(), best = null, bd = Infinity;
+    haters.forEach(function (h) { var d = (h.x - c.x) * (h.x - c.x) + (h.y - c.y) * (h.y - c.y); if (d < bd) { bd = d; best = h; } });
+    return best;
+  }
+  var CHALLS = [
+    function (li) { var n = Math.min(15 + li * 3, 80); return { type: 'combo', goal: n, time: 12, txt: 'Faça combo x' + n }; },
+    function (li) { var n = Math.min(35 + li * 2, 90); return { type: 'clicks', goal: n, time: 10, txt: 'Dê ' + n + ' cliques no 67' }; },
+    function (li) { var n = Math.min(4 + Math.floor(li / 2), 12); return { type: 'haters', goal: n, time: 22, txt: 'Onda de haters: derrube ' + n }; }
+  ];
+  function startChall() {
+    var li = levelIndex(), pool = li >= 3 ? CHALLS : CHALLS.slice(0, 2);
+    chall = pool[Math.floor(Math.random() * pool.length)](li);
+    chall.n = 0; chall.left = chall.time;
+    showBanner('Desafio relâmpago', chall.txt);
+    say('Desafio relâmpago: ' + chall.txt + ' em ' + chall.time + 's. Prêmio: turbo x3.');
+    if (chall.type === 'haters') for (var i = 0; i < chall.goal; i++) setTimeout(function () { if (chall && chall.type === 'haters') spawnHater(); }, 300 + i * 650);
+  }
+  function endChall(win) {
+    if (win) {
+      turboLeft = 20; S.chall += 1;
+      var c = orbCenter();
+      spawn(c.x, c.y, 120, { speed: 8, life: 1200, hue: 185, spread: 140, size: 4 });
+      shock(c.x, c.y); shake(true); flash(185, 0.5); fireSound();
+      showBanner('Desafio cumprido', 'Turbo x3 por 20s');
+      say('Desafio cumprido. Turbo x3 em toda a aura por 20 segundos.');
+    } else say('Desafio perdido. Próximo vem aí, fique esperto.');
+    chall = null;
+    challAt = Date.now() + 70000 + Math.random() * 60000;
+  }
+  function renderChall() {
+    if (chall) {
+      challEl.hidden = false; challEl.className = 'chall' + (chall.left < 4 ? ' urgent' : '');
+      T(challEl, 'DESAFIO · ' + chall.txt + ' · ' + Math.min(chall.n, chall.goal) + '/' + chall.goal + ' · ' + Math.ceil(chall.left) + 's');
+    } else if (turboLeft > 0) {
+      challEl.hidden = false; challEl.className = 'chall turbo';
+      T(challEl, 'TURBO x3 · ' + Math.ceil(turboLeft) + 's');
+    } else if (!challEl.hidden) challEl.hidden = true;
+  }
+  function haterTick(now, dt) {
+    var li = levelIndex();
+    if (turboLeft > 0) turboLeft = Math.max(0, turboLeft - dt);
+    if (chall) {
+      chall.left -= dt;
+      if (chall.n >= chall.goal) endChall(true);
+      else if (chall.left <= 0) endChall(false);
+    }
+    renderChall();
+    document.body.classList.toggle('danger', haters.length >= 3 || hasBoss());
+    if (li < 1 || document.hidden) { haterAt = Math.max(haterAt, now + 3000); return; }
+    var cap = Math.min(3 + Math.floor(li / 3), 9);
+    if (now >= haterAt) {
+      if (haters.length < cap) spawnHater();
+      haterAt = now + Math.max(1600, 11000 - li * 400) * (0.6 + Math.random() * 0.8);
+    }
+    if (li >= 6 && now >= bossAt) {
+      if (!hasBoss()) spawnHater('boss');
+      bossAt = now + Math.max(90000, 240000 - li * 5000) * (0.8 + Math.random() * 0.4);
+    }
+    if (li >= 2 && !chall && now >= challAt) startChall();
+    var g = S.eu.guard || 0;
+    if (g > 0 && haters.length) {
+      guardT += dt;
+      if (guardT >= Math.max(1, 6 - 0.5 * g)) {
+        guardT = 0;
+        var t = nearestHater();
+        if (t) { floater(t.x, t.y, 'SEGURANÇA', ''); hitHater(t, t.x, t.y, 1 + Math.floor(g / 4)); }
+      }
+    } else guardT = 0;
+  }
+
   // ---------- Nível ----------
   var lastLevel = levelIndex();
   function firework(x, y, hue) {
@@ -1562,7 +1803,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     }
     clearTimeout(resetTimer); resetArmed = false;
     el.reset.classList.remove('armed'); el.reset.textContent = 'Zerar tudo';
-    S = fresh(); frenzyLeft = 0; combo = 0; lastLevel = 0; prevK = 0;
+    S = fresh(); frenzyLeft = 0; combo = 0; clearHaters(); chall = null; turboLeft = 0; lastLevel = 0; prevK = 0;
     save(); say('Começando do zero. Aura de NPC de novo.'); update(); if (CLOUD && ses) { lastSig = ''; push(true); }
   });
 
@@ -1740,7 +1981,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     lastLevel = li;
     renderCounter();
     var br = baseRate();
-    T(el.rate, fmt(br) + ' aura/s');
+    var hm = haterMult();
+    T(el.rate, fmt(br) + ' aura/s' + (hm < 1 ? ' · haters -' + Math.round((1 - hm) * 100) + '%' : ''));
     T($('miniRate'), el.rate.textContent);
     T(el.totmult, 'multiplicador total x' + fmt(globalMult()));
     T(el.level, L.name);
@@ -1851,6 +2093,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       if (!goldOn && now >= goldAt) showGold();
       else if (goldOn && now >= goldHideAt) hideGold();
     }
+    // haters e desafios
+    haterTick(now, dt);
     // produção
     var r = baseRate();
     if (r > 0) add(r * dt);

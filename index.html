@@ -1220,7 +1220,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 
   // ---------- Som ----------
   var SND_KEY = 'aura67.snd', SND_FILE_KEY = 'aura67.sndfiles';
-  var BUILTIN_SOUNDS = (window.AURA_SONS || []).filter(function (x) { return x && x.arquivo; }).map(function (x) { return { url: 'sons/' + x.arquivo, name: x.arquivo, ev: x.evento || '67' }; });
+  var BUILTIN_SOUNDS = (window.AURA_SONS || []).filter(function (x) { return x && x.arquivo; }).map(function (x) { return { url: 'sons/' + x.arquivo, name: x.arquivo, ev: x.evento || '67', max: +x.max > 0 ? +x.max : 0 }; });
   var sndMode = BUILTIN_SOUNDS.length ? 'custom' : 'fah', userSounds = [], lastSnd = '';
   try {
     var m0 = localStorage.getItem(SND_KEY);
@@ -1336,7 +1336,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     g.connect(master); sg.connect(master); ng.connect(master); master.connect(a.destination);
     o.start(t); sub.start(t); ns.start(t); o.stop(t + dur + 0.05); sub.stop(t + dur + 0.05);
   }
-  var MAX_SND = 5; // segundos por áudio
+  var MAX_SND_DEF = 5; // segundos por áudio (sons.js pode aumentar com "max")
   var sndBusy = false, sndTimer = 0, curStop = null;
   function markBusy(ms, stopFn) {
     sndBusy = true; curStop = stopFn || null;
@@ -1353,6 +1353,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     var i = Math.floor(Math.random() * list.length);
     if (list.length > 1 && list[i].url === lastSnd) i = (i + 1 + Math.floor(Math.random() * (list.length - 1))) % list.length;
     lastSnd = list[i].url;
+    var MAX_SND = list[i].max || MAX_SND_DEF;
     var buf = bufCache[list[i].url];
     if (buf && AC && AC.state === 'running') {
       try {

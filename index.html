@@ -1871,7 +1871,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   var CFG = window.AURA_CFG || {};
   var CLOUD = !!(CFG.url && CFG.key);
   var SES_KEY = 'aura67.session';
-  var ses = null, lastSig = '', pushing = false, rankOrder = 'earned', rankTimer = 0, authMode = 'login';
+  var ses = null, lastSig = '', pushing = false, pushErr = null, rankOrder = 'earned', rankTimer = 0, authMode = 'login';
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function lsDel(k) { try { localStorage.removeItem(k); } catch (e) {} }
@@ -1928,7 +1928,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     pushing = true;
     return tk.then(function (t) {
       return http('/rest/v1/rpc/submit_score', 'POST', { p_aura: S.aura, p_ego: S.ego, p_level: levelIndex(), p_earned: S.earned, p_save: S }, t, keep);
-    }).then(function () { lastSig = sg; }).catch(function () {}).then(function () { pushing = false; });
+    }).then(function () { lastSig = sg; pushErr = null; }).catch(function (e) { pushErr = e; }).then(function () { pushing = false; });
   }
 
   function renderAcct() {
@@ -2009,6 +2009,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       else if (!ses) info.textContent = 'Entre com sua conta para aparecer aqui.';
       else if (me >= 0) info.textContent = 'Você está em #' + (me + 1) + ' de ' + rows.length + ' jogadores listados.';
       else info.textContent = 'Você ainda está fora do top 100.';
+      if (ses && pushErr) info.textContent += ' Seu placar não está sendo enviado (' + niceErr(pushErr) + '). Se for "valores inválidos", rode de novo o supabase.sql no SQL Editor.';
     }).catch(function (e) { $('rankMe').textContent = niceErr(e); });
   }
   $('rankBtn').addEventListener('click', openRank);

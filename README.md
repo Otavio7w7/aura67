@@ -28,3 +28,25 @@ O Supabase pode recusar o domínio fictício. Troque `domain` em `AURA_CFG` por 
   O SQL só barra valores absurdos. Para ranking realmente confiável, a pontuação teria de ser calculada no servidor.
 - Não há recuperação de senha (não existe e-mail real). Esqueceu a senha = criar outro nick (ou resetar o usuário no painel do Supabase).
 - Ao logar em uma conta existente, o progresso da nuvem substitui o do navegador.
+
+## Temporada 2 (reset geral)
+1. No Supabase, **SQL Editor**: cole todo o conteúdo de `reset-temporada.sql` e execute.
+   **Isso apaga todas as contas e todo o ranking, sem volta.** No fim ele mostra `contas = 0` e `jogadores = 0`.
+2. No navegador de cada jogador, o jogo novo apaga sozinho o save antigo (`aura67.v3`) e a sessão antiga ao abrir.
+   Quem estava logado vê a tela de entrada e precisa criar o nick de novo.
+
+## Áudios
+Os áudios ficam na pasta `sons/` e são listados em `sons/sons.js`. Para incluir um novo:
+1. Coloque o arquivo (`.mp3`, `.ogg` ou `.m4a`) em `sons/`.
+2. Acrescente uma linha em `sons/sons.js`, por exemplo `{ arquivo: 'meu-audio.mp3', evento: '67' },`.
+
+Eventos: `67` (a cada 67 de aura, sorteado), `nivel`, `chefe`, `vitoria`, `roubo`, `sigma`, `ego`, `desafio`.
+Evento sem áudio próprio usa um sorteado de `67`. Cada áudio toca no máximo 5 s.
+
+## Dificuldade (Temporada 2)
+- Geradores 3x mais caros (antes 2x), crescimento de preço 1,20 por unidade (antes 1,165), geradores do fim do jogo bem mais caros.
+- Multiplicadores 6x mais caros (antes 3x). Pose: 30 x 1,6^nível.
+- Ego: primeiro ponto com 1M de aura na rodada (antes 5K), +6% por ponto (antes +40%). Poder supremo x1,25 (antes x1,5).
+- Haters a partir do nível 1, mais rápidos, mais resistentes e roubando mais; chefes a partir do nível 4.
+  Perder um desafio relâmpago chama 2 haters. Combo exige toques mais rápidos. Aura rara aparece menos e some mais rápido.
+- Em simulação de um jogador ativo e esperto, o nível 18 passou de ~20 min para ~18 h de jogo.

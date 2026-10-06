@@ -728,6 +728,17 @@ h1 { font-size: clamp(22px, 5.4vw, 34px); letter-spacing: .02em; }
   .sheet, .stage { transition: none; }
 }
 
+/* Botão secreto + popup do amor */
+.secret { border: 0; background: transparent; color: var(--muted); opacity: .16; cursor: pointer; font-size: 14px; line-height: 1; padding: 6px 8px; border-radius: 8px; transition: opacity .25s; }
+.secret:hover, .secret:focus-visible { opacity: .9; }
+#loveModal .card { text-align: center; padding: 28px 22px; }
+#loveModal .heart { font-size: 54px; line-height: 1; margin-bottom: 10px; animation: lovebeat 1.2s ease-in-out infinite; }
+#loveModal .lovetxt { margin: 0 0 18px; font-family: var(--font-display); font-weight: 400; font-size: 22px; line-height: 1.3; }
+@keyframes lovebeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+.lovefall { position: fixed; top: -40px; z-index: 60; pointer-events: none; user-select: none; animation: lovefall linear forwards; }
+@keyframes lovefall { to { transform: translateY(115vh) rotate(25deg); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { #loveModal .heart { animation: none; } .lovefall { display: none; } }
+
 </style>
 <script src="sons/sons.js"></script>
 <script>
@@ -965,6 +976,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 
       <div class="foot">
         <span id="saveNote">O progresso fica salvo neste navegador.</span>
+        <button class="secret" id="loveBtn" type="button" aria-label="Surpresa">♥</button>
         <span class="footbtns"><button class="ghost" id="fxBtn" type="button" aria-label="Alternar qualidade dos efeitos">Efeitos: Completo</button> <button class="ghost" id="vibBtn" type="button">Vibração: Ligada</button> <button class="ghost" id="resetBtn" type="button">Zerar tudo</button></span>
       </div>
 
@@ -1004,6 +1016,15 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     </div>
     <div class="rankbox"><table class="rank"><thead><tr><th>#</th><th>Nick</th><th>Aura total</th><th>Ego</th><th class="lv">Nível</th></tr></thead><tbody id="rankBody"></tbody></table></div>
     <div class="row"><small style="color:var(--muted)">Atualiza a cada 30 s. Top 100.</small><button class="ghost" id="rankClose" type="button">Fechar</button></div>
+  </div>
+</div>
+
+<div class="modal" id="loveModal" hidden role="dialog" aria-modal="true" aria-labelledby="loveTxt">
+  <div class="card">
+    <div class="heart" aria-hidden="true">💖</div>
+    <p class="lovetxt" id="loveTxt">Otavio ama Rebeca!!</p>
+    <p class="sub" id="loveSub" style="margin-bottom:18px">eu amo minha namorada mais do que água para chocolate!!!</p>
+    <button class="primary" id="loveClose" type="button">Fechar</button>
   </div>
 </div>
 
@@ -2517,6 +2538,48 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   $('rankClose').addEventListener('click', closeRank);
   $('rankModal').addEventListener('click', function (e) { if (e.target === $('rankModal')) closeRank(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { if (!$('rankModal').hidden) closeRank(); else if (!$('authModal').hidden) $('authSkip').click(); } });
+  // Popup secreto (botão ♥ no rodapé da aba "Mais")
+  function loveRain() {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var hs = ['💖', '💗', '💕', '❤️', '💘'];
+    for (var i = 0; i < 24; i++) {
+      var h = document.createElement('span');
+      h.className = 'lovefall'; h.textContent = hs[i % hs.length];
+      h.style.left = (Math.random() * 96) + 'vw';
+      h.style.fontSize = (16 + Math.random() * 22) + 'px';
+      var d = 2.6 + Math.random() * 2.4;
+      h.style.animationDuration = d + 's';
+      h.style.animationDelay = (Math.random() * 1.2) + 's';
+      document.body.appendChild(h);
+      setTimeout((function (n) { return function () { if (n.parentNode) n.parentNode.removeChild(n); }; })(h), (d + 1.4) * 1000 + 200);
+    }
+  }
+  function openLove(title, sub) {
+    $('loveTxt').textContent = title || 'Otavio ama Rebeca!!';
+    $('loveSub').textContent = sub === undefined ? 'eu amo minha namorada mais do que água para chocolate!!!' : sub;
+    $('loveSub').hidden = !$('loveSub').textContent;
+    $('loveModal').hidden = false; $('loveClose').focus(); loveRain();
+  }
+  function closeLove() { $('loveModal').hidden = true; }
+  // Easter egg 2: digitar "rebeca" em qualquer lugar (fora de campos de texto)
+  var loveTyped = '';
+  document.addEventListener('keydown', function (e) {
+    var tg = e.target && e.target.tagName;
+    if (tg === 'INPUT' || tg === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey || !e.key || e.key.length !== 1) return;
+    loveTyped = (loveTyped + e.key.toLowerCase()).slice(-6);
+    if (loveTyped === 'rebeca') { loveTyped = ''; openLove('Rebeca 💖', 'digitou o nome certo... Otavio ama Rebeca!!'); }
+  });
+  // Easter eggs 3 e 4: toques seguidos no título (5x) e no selo de nível (7x)
+  function multiTap(node, n, gap, fn) {
+    var c = 0, t = 0;
+    node.addEventListener('click', function () { var now = Date.now(); c = now - t > gap ? 1 : c + 1; t = now; if (c >= n) { c = 0; fn(); } });
+  }
+  multiTap(document.querySelector('.brand'), 5, 800, function () { openLove('A maior aura do jogo é a Rebeca 💘', 'Otavio ama Rebeca!!'); });
+  multiTap($('level'), 7, 800, function () { openLove('Nível Rebeca: infinito ♾️💖', 'Otavio ama Rebeca!!'); });
+  $('loveBtn').addEventListener('click', function () { openLove(); });
+  $('loveClose').addEventListener('click', closeLove);
+  $('loveModal').addEventListener('click', function (e) { if (e.target === $('loveModal')) closeLove(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('loveModal').hidden) closeLove(); });
   Array.prototype.forEach.call(document.querySelectorAll('#rankTabs button'), function (b) {
     b.addEventListener('click', function () {
       rankOrder = b.getAttribute('data-o');

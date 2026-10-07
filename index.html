@@ -188,6 +188,22 @@ body.frenzy .bg-guy { opacity: .5; }
 }
 .gold small { position: absolute; bottom: -22px; left: 50%; translate: -50% 0; white-space: nowrap; font-family: var(--font-body); font-weight: 800; font-size: 12px; color: var(--ego); text-shadow: 0 1px 0 #000; }
 @keyframes goldPulse { 0%, 100% { scale: 1; } 50% { scale: 1.12; } }
+/* Ovo secreto */
+.egg {
+  position: fixed; z-index: 25; width: 76px; height: 76px; border-radius: 50% 50% 46% 46% / 58% 58% 42% 42%; border: 3px solid #fff; cursor: pointer;
+  background: radial-gradient(circle at 38% 30%, #fff, #ffe3f3 45%, #ff9bd6); font-size: 38px; display: grid; place-items: center; touch-action: manipulation;
+  box-shadow: 0 0 26px 8px rgba(255, 155, 214, .6), 0 0 70px 20px rgba(139, 92, 255, .35); animation: eggWiggle 1s ease-in-out infinite, goldDrift 5s ease-in-out infinite alternate;
+}
+.egg small { position: absolute; bottom: -22px; left: 50%; translate: -50% 0; white-space: nowrap; font-weight: 800; font-size: 12px; color: #ff9bd6; text-shadow: 0 1px 0 #000; }
+@keyframes eggWiggle { 0%, 100% { rotate: -10deg; } 50% { rotate: 10deg; } }
+#eggModal .card { text-align: center; }
+#eggModal .eggico { font-size: 52px; line-height: 1; margin-bottom: 6px; animation: eggWiggle 1.2s ease-in-out infinite; }
+.eggslots { display: flex; justify-content: center; gap: 6px; margin: 4px 0 14px; }
+.eggslots b { width: 40px; height: 48px; display: grid; place-items: center; border-radius: 10px; border: 2px solid var(--line); background: var(--bg); font-family: var(--font-display); font-weight: 400; font-size: 22px; color: #ff9bd6; text-transform: uppercase; }
+.eggslots b.on { border-color: #ff9bd6; box-shadow: 0 0 12px -2px #ff9bd6; }
+#eggIn { display: block; width: 100%; margin-bottom: 6px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font: inherit; font-size: 18px; text-align: center; letter-spacing: .2em; text-transform: uppercase; }
+#eggModal.shake .card { animation: shakeLg .4s ease-out; }
+@media (prefers-reduced-motion: reduce) { .egg, #eggModal .eggico { animation: none; } }
 @keyframes goldDrift { from { transform: translate(-16px, -8px); } to { transform: translate(18px, 12px); } }
 
 .ticker { min-height: 2.6em; text-align: center; color: var(--muted); font-style: italic; max-width: 34ch; text-wrap: balance; }
@@ -756,6 +772,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 <div class="flash" id="flash" aria-hidden="true"></div>
 <div class="hdanger" aria-hidden="true"></div>
 <div class="haters" id="haters"></div>
+<button class="egg" id="egg" type="button" hidden aria-label="Ovo secreto: toque para abrir">🥚<small>OVO SECRETO</small></button>
 <button class="gold" id="gold" type="button" hidden aria-label="Aura rara: toque para ativar o modo Sigma x5">67<small>AURA RARA</small></button>
 
 <button class="mini" id="mini" type="button" aria-hidden="true" tabindex="-1"><b id="miniAura">0</b><span id="miniRate"></span></button>
@@ -1019,6 +1036,21 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   </div>
 </div>
 
+<div class="modal" id="eggModal" hidden role="dialog" aria-modal="true" aria-labelledby="eggTitle">
+  <div class="card">
+    <div class="eggico" aria-hidden="true">🥚</div>
+    <h2 id="eggTitle">Ovo secreto</h2>
+    <p class="sub" id="eggSub">Descubra a palavra secreta de 6 letras. Quem acertar ganha um prêmio enorme.</p>
+    <div class="eggslots" id="eggSlots" aria-live="polite"></div>
+    <form id="eggForm" novalidate>
+      <input id="eggIn" maxlength="12" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="digite a palavra" aria-label="Palavra secreta">
+      <p class="err" id="eggErr" role="alert"></p>
+      <button class="primary" type="submit">Chutar</button>
+    </form>
+    <div class="row"><button class="ghost" id="eggHint" type="button">Dica de letra</button><small id="eggTime" style="color:var(--muted)"></small><button class="ghost" id="eggQuit" type="button">Desistir</button></div>
+  </div>
+</div>
+
 <div class="modal" id="loveModal" hidden role="dialog" aria-modal="true" aria-labelledby="loveTxt">
   <div class="card">
     <div class="heart" aria-hidden="true">💖</div>
@@ -1133,7 +1165,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     { id: 'h1', n: 'Primeiro hater derrubado', t: function (s) { return s.haters >= 1; } },
     { id: 'h100', n: '100 haters derrubados', t: function (s) { return s.haters >= 100; } },
     { id: 'boss1', n: 'Chefe hater derrotado', t: function (s) { return s.bosses >= 1; } },
-    { id: 'ch10', n: '10 desafios relâmpago', t: function (s) { return s.chall >= 10; } }
+    { id: 'ch10', n: '10 desafios relâmpago', t: function (s) { return s.chall >= 10; } },
+    { id: 'egg1', n: 'Ovo secreto aberto', t: function (s) { return s.eggs >= 1; } }
   ];
   var MSGS = [
     'Aura +67 detectada.', 'O corredor abriu caminho para você.', 'Ninguém viu você tropeçar. Aura intacta.',
@@ -1174,7 +1207,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 
   function zeros() { var a = []; for (var i = 0; i < MULTS.length; i++) a.push(0); return a; }
   function fresh() {
-    return { aura: 0, earned: 0, run: 0, best: 0, clicks: 0, ego: 0, egoSpent: 0, inflations: 0, click: 0, crits: 0, bestCombo: 0, golds: 0, haters: 0, bosses: 0, chall: 0, gens: {}, mults: zeros(), eu: {}, ach: {} };
+    return { aura: 0, earned: 0, run: 0, best: 0, clicks: 0, ego: 0, egoSpent: 0, inflations: 0, click: 0, crits: 0, bestCombo: 0, golds: 0, haters: 0, bosses: 0, chall: 0, eggs: 0, gens: {}, mults: zeros(), eu: {}, ach: {} };
   }
   function load(o0) {
     var s = fresh();
@@ -1182,7 +1215,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       var raw = o0 ? null : localStorage.getItem(KEY);
       var o = o0 || (raw ? JSON.parse(raw) : null);
       if (o) {
-        ['aura', 'earned', 'run', 'best', 'clicks', 'ego', 'egoSpent', 'inflations', 'click', 'crits', 'bestCombo', 'golds', 'haters', 'bosses', 'chall'].forEach(function (k) {
+        ['aura', 'earned', 'run', 'best', 'clicks', 'ego', 'egoSpent', 'inflations', 'click', 'crits', 'bestCombo', 'golds', 'haters', 'bosses', 'chall', 'eggs'].forEach(function (k) {
           if (typeof o[k] === 'number' && isFinite(o[k])) s[k] = o[k];
         });
         if (o.gens && typeof o.gens === 'object') GENS.forEach(function (g) { if (typeof o.gens[g.id] === 'number') s.gens[g.id] = o.gens[g.id]; });
@@ -1796,19 +1829,19 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   // Inimigos que andam até o 67: enquanto vivos cortam a produção; se encostarem, roubam aura e quebram o combo.
   // Força, velocidade e frequência crescem com o nível, para o jogo não ficar fácil.
   var hatersEl = $('haters'), challEl = $('chall');
-  var haters = [], haterAt = Date.now() + 15000, bossAt = Date.now() + 90000, hRaf = 0, hLast = 0, guardT = 0;
+  var haters = [], haterAt = Date.now() + 30000, bossAt = Date.now() + 150000, hRaf = 0, hLast = 0, guardT = 0;
   var turboLeft = 0, chall = null, challAt = Date.now() + 60000;
   var HNAMES = ['Hater', 'Cringe', 'NPC invejoso', 'Comentário tóxico', 'Print do ex', 'Fofoqueiro', 'Ranço', 'Vergonha alheia'];
   var BNAMES = ['Hater supremo', 'Rei do cringe', 'Fofoqueiro-mor', 'Chefão do ranço'];
   function haterMult() {
     var m = 1;
-    for (var i = 0; i < haters.length; i++) m *= haters[i].boss ? 0.5 : 0.85;
-    return Math.max(m, 0.2);
+    for (var i = 0; i < haters.length; i++) m *= haters[i].boss ? 0.6 : 0.9;
+    return Math.max(m, 0.3);
   }
   function pickKind(li) {
     var r = Math.random();
-    if (li >= 6 && r < 0.22) return 'tank';
-    if (li >= 3 && r < 0.5) return 'fast';
+    if (li >= 8 && r < 0.15) return 'tank';
+    if (li >= 4 && r < 0.4) return 'fast';
     return 'n';
   }
   function spawnHater(kind) {
@@ -1817,8 +1850,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     if (side === 0) { x = -m; y = Math.random() * H; } else if (side === 1) { x = W + m; y = Math.random() * H; }
     else if (side === 2) { x = Math.random() * W; y = -m; } else { x = Math.random() * W; y = H + m; }
     var k = kind || pickKind(li), boss = k === 'boss';
-    var hp = boss ? 30 + li * 6 : k === 'tank' ? 5 + Math.floor(li / 2) : k === 'fast' ? 1 + Math.floor(li / 8) : 1 + Math.floor(li / 4);
-    var sp = (46 + li * 3.6) * (k === 'fast' ? 1.8 : k === 'tank' ? 0.55 : boss ? 0.32 : 1);
+    var hp = boss ? 22 + li * 4 : k === 'tank' ? 4 + Math.floor(li / 3) : k === 'fast' ? 1 : 1 + Math.floor(li / 7);
+    var sp = (38 + li * 2.6) * (k === 'fast' ? 1.8 : k === 'tank' ? 0.55 : boss ? 0.32 : 1);
     var size = boss ? 110 : k === 'tank' ? 74 : k === 'fast' ? 46 : 56;
     var name = boss ? BNAMES[Math.floor(Math.random() * BNAMES.length)] : HNAMES[Math.floor(Math.random() * HNAMES.length)];
     var b = document.createElement('button');
@@ -1869,7 +1902,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   }
   function haterSteal(h) {
     var li = levelIndex();
-    var pct = h.boss ? Math.min(0.15 + li * 0.008, 0.35) : Math.min(0.05 + li * 0.006, 0.2) * (h.k === 'tank' ? 1.5 : 1);
+    var pct = h.boss ? Math.min(0.1 + li * 0.006, 0.25) : Math.min(0.03 + li * 0.004, 0.12) * (h.k === 'tank' ? 1.5 : 1);
     var st = S.aura * pct;
     S.aura -= st;
     removeHater(h);
@@ -1933,9 +1966,9 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       say('Desafio cumprido. Turbo x3 em toda a aura por 20 segundos.');
     } else {
       // Perder tem castigo: os haters vêm rir da sua cara
-      for (var j = 0; j < 2; j++) setTimeout(function () { spawnHater(); }, 200 + j * 500);
-      showBanner('Desafio perdido', 'Os haters vieram rir');
-      say('Desafio perdido. Dois haters vieram rir da sua cara.');
+      setTimeout(function () { spawnHater(); }, 300);
+      showBanner('Desafio perdido', 'Um hater veio rir');
+      say('Desafio perdido. Um hater veio rir da sua cara.');
     }
     chall = null;
     challAt = Date.now() + 70000 + Math.random() * 60000;
@@ -1960,14 +1993,14 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     renderChall();
     document.body.classList.toggle('danger', haters.length >= 3 || hasBoss());
     if (li < 1 || document.hidden) { haterAt = Math.max(haterAt, now + 3000); return; }
-    var cap = Math.min(4 + Math.floor(li / 2), 12);
+    var cap = Math.min(2 + Math.floor(li / 3), 7);
     if (now >= haterAt) {
       if (haters.length < cap) spawnHater();
-      haterAt = now + Math.max(1100, 8000 - li * 380) * (0.6 + Math.random() * 0.8);
+      haterAt = now + Math.max(3000, 14000 - li * 450) * (0.6 + Math.random() * 0.8);
     }
-    if (li >= 4 && now >= bossAt) {
+    if (li >= 5 && now >= bossAt) {
       if (!hasBoss()) spawnHater('boss');
-      bossAt = now + Math.max(70000, 180000 - li * 5000) * (0.8 + Math.random() * 0.4);
+      bossAt = now + Math.max(120000, 260000 - li * 5000) * (0.8 + Math.random() * 0.4);
     }
     if (li >= 2 && !chall && now >= challAt) startChall();
     var g = S.eu.guard || 0;
@@ -2368,6 +2401,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     if (!document.hidden) {
       if (!goldOn && now >= goldAt) showGold();
       else if (goldOn && now >= goldHideAt) hideGold();
+      eggTick(now);
     }
     // haters e desafios
     haterTick(now, dt);
@@ -2580,6 +2614,77 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   $('loveClose').addEventListener('click', closeLove);
   $('loveModal').addEventListener('click', function (e) { if (e.target === $('loveModal')) closeLove(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('loveModal').hidden) closeLove(); });
+
+  // ---------- Ovo secreto: de vez em quando aparece um ovo; quem digitar a palavra (sempre "rebeca") ganha ----------
+  var EGG_WORD = 'rebeca', EGG_TIME = 45, EGG_HINTS = 3;
+  var eggAt = Date.now() + 240000 + Math.random() * 180000, eggHideAt = 0, eggOn = false, egg = null;
+  function eggNorm(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/g, ''); }
+  function hideEgg() { eggOn = false; $('egg').hidden = true; eggAt = Date.now() + 300000 + Math.random() * 300000; }
+  function showEgg() {
+    eggOn = true; eggHideAt = Date.now() + 12000;
+    var b = $('egg'); b.style.left = (8 + Math.random() * 66) + '%'; b.style.top = (26 + Math.random() * 40) + '%'; b.hidden = false;
+    say('Um ovo secreto apareceu. Toque nele antes que suma.');
+  }
+  function eggSlots() {
+    var box = $('eggSlots'); box.textContent = '';
+    for (var i = 0; i < EGG_WORD.length; i++) {
+      var c = document.createElement('b'), on = egg && egg.shown[i];
+      c.textContent = on ? EGG_WORD[i] : '_'; if (on) c.className = 'on'; box.appendChild(c);
+    }
+    var left = EGG_HINTS - (egg ? egg.hints : 0);
+    $('eggHint').disabled = left <= 0;
+    $('eggHint').textContent = left > 0 ? 'Dica de letra (' + left + ')' : 'Sem dicas';
+  }
+  function eggPrize() { return Math.max(baseRate() * 300, clickBase() * 600, S.run * 0.3, 6700) * (1 - 0.2 * egg.hints); }
+  function closeEgg() { $('eggModal').hidden = true; egg = null; }
+  $('egg').addEventListener('click', function () {
+    hideEgg();
+    egg = { left: EGG_TIME, hints: 0, shown: EGG_WORD.split('').map(function () { return false; }) };
+    $('eggErr').textContent = ''; $('eggIn').value = ''; eggSlots();
+    T($('eggTime'), EGG_TIME + 's · prêmio ' + fmt(eggPrize()));
+    $('eggModal').hidden = false; setTimeout(function () { $('eggIn').focus(); }, 40);
+  });
+  $('eggHint').addEventListener('click', function () {
+    if (!egg || egg.hints >= EGG_HINTS) return;
+    var idx = []; egg.shown.forEach(function (v, i) { if (!v) idx.push(i); });
+    if (idx.length <= 1) return;
+    egg.shown[idx[Math.floor(Math.random() * idx.length)]] = true; egg.hints += 1; eggSlots();
+    $('eggErr').textContent = 'Dica dada. O prêmio caiu 20%.';
+  });
+  $('eggForm').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (!egg) return;
+    if (eggNorm($('eggIn').value) !== EGG_WORD) {
+      $('eggErr').textContent = 'Não é essa. Tenta de novo.'; $('eggIn').select();
+      var m = $('eggModal'); m.classList.remove('shake'); void m.offsetWidth; m.classList.add('shake'); buzz(60);
+      return;
+    }
+    var prize = eggPrize();
+    closeEgg();
+    add(prize); S.eggs += 1;
+    frenzyLeft = Math.max(frenzyLeft, 20);
+    var c = orbCenter();
+    floater(c.x, c.y, 'REBECA ♥', 'super');
+    setTimeout(function () { floater(c.x, c.y + 50, '+' + fmt(prize), 'crit'); }, 250);
+    spawn(c.x, c.y, 140, { speed: 8, life: 1300, hue: 330, spread: 60, size: 4, shape: 'star' });
+    shock(c.x, c.y); shake(true); flash(330, 0.55); burstGuy(); fireSound('nivel', true); buzz([60, 40, 60, 40, 120]);
+    loveRain(); confetti();
+    showBanner('Palavra secreta', 'REBECA 💖');
+    say('Acertou a palavra secreta. +' + fmt(prize) + ' de aura e modo Sigma x5.');
+    save(); update();
+  });
+  $('eggQuit').addEventListener('click', function () { closeEgg(); say('Desistiu do ovo. A palavra continua secreta.'); });
+  function eggTick(now) {
+    if (egg) {
+      egg.left -= 0.1;
+      if (egg.left <= 0) { closeEgg(); say('O ovo fechou. A palavra continua secreta.'); }
+      else T($('eggTime'), Math.ceil(egg.left) + 's · prêmio ' + fmt(eggPrize()));
+      return;
+    }
+    if (levelIndex() < 1) { eggAt = Math.max(eggAt, now + 5000); return; }
+    if (!eggOn && now >= eggAt) showEgg();
+    else if (eggOn && now >= eggHideAt) { hideEgg(); say('O ovo secreto sumiu. Ele volta.'); }
+  }
   Array.prototype.forEach.call(document.querySelectorAll('#rankTabs button'), function (b) {
     b.addEventListener('click', function () {
       rankOrder = b.getAttribute('data-o');

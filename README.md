@@ -50,3 +50,19 @@ Evento sem áudio próprio usa um sorteado de `67`. Cada áudio toca no máximo 
 - Haters a partir do nível 1, mais rápidos, mais resistentes e roubando mais; chefes a partir do nível 4.
   Perder um desafio relâmpago chama 2 haters. Combo exige toques mais rápidos. Aura rara aparece menos e some mais rápido.
 - Em simulação de um jogador ativo e esperto, o nível 18 passou de ~20 min para ~18 h de jogo.
+
+## Arena (batalha entre jogadores)
+1. No Supabase, **SQL Editor**: cole todo o conteúdo de `arena.sql` e execute (uma vez; pode repetir sem perder nada).
+   No fim ele lista as 4 colunas novas (`last_seen`, `coins`, `arena_items`, `arena_wins`).
+2. Sem esse passo a aba Arena mostra "A Arena ainda não foi ativada no servidor" e o resto do jogo funciona normal.
+
+Como funciona:
+- Aba **Arena** lista quem está online (sinal a cada 5 s). Desafio vale 35 s; o outro aceita ou recusa num pop-up.
+- 5 minutos, os dois começam do zero. Ego, Loja do Ego, bônus de nível/conquistas, dia especial, hora premiada, ovo secreto,
+  bênção da Bequinha e itens da Arena **não valem** lá dentro. Aura rara, haters e desafios relâmpago continuam.
+- O save normal fica guardado e volta igual no fim (não é salvo nem enviado durante a batalha).
+- Vence quem tiver mais aura farmada; o servidor decide pelo relógio dele. 20 s sem sinal (app fechado ou em segundo plano) = W.O.
+- A moeda só é dada pelo servidor: máximo 3 por dia e 1 por dia contra o mesmo jogador. Placar acima do teto possível é ignorado.
+- **Loja da Arena** (bônus permanentes no jogo normal): Aura do Campeão x10 (1 moeda, compra única), Grito de guerra x2 por nível
+  (2, 5, 10, 15, 20), Mãos de gladiador +5 cliques/s por nível (1, 3, 6, 10, 15), Título Gladiador ⚔️ no ranking (1 moeda).
+  Os preços ficam em `arena_buy` no `arena.sql` e em `AR_ITEMS` no `index.html` (mudar nos dois).

@@ -572,6 +572,24 @@ body.danger .hdanger { opacity: 1; animation: hDanger 1.4s ease-in-out infinite;
 .chall.urgent { animation: flow 2.4s linear infinite, goldPulse .5s ease-in-out infinite; }
 @media (prefers-reduced-motion: reduce) { .hater .face, .chall, body.danger .hdanger { animation: none; } }
 
+/* Arena (batalha entre jogadores) */
+.arcoins { font-weight: 800; color: var(--ego); font-variant-numeric: tabular-nums; }
+.arstatus { margin: 0 0 10px; font-size: 13px; font-weight: 700; }
+.arstatus:empty { display: none; }
+.item.arit .ico { background: color-mix(in srgb, #ff6b81 22%, var(--panel-2)); color: #ff9aa9; }
+.item.arit .meta { color: #ff9aa9; }
+.buy.ar-b { background: linear-gradient(135deg, #ff4f6d, #ff9a4f); }
+.arhud { width: 100%; padding: 8px 12px; border-radius: 12px; background: var(--panel); border: 1px solid #ff6b81; box-shadow: 0 0 22px -6px #ff4f6d; font-variant-numeric: tabular-nums; }
+.arhud-top { display: flex; align-items: center; gap: 10px; }
+.arhud-top b { font-family: var(--font-display); font-weight: 400; font-size: 20px; color: #ffb0bd; }
+.arhud-top span { flex: 1; min-width: 0; font-size: 13px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.arhud-top .ghost { padding: 4px 10px; font-size: 12px; }
+.arbar { height: 5px; margin: 5px 0 1px; border-radius: 99px; background: #5ce1e6; overflow: hidden; }
+.arbar i { display: block; height: 100%; width: 50%; background: linear-gradient(90deg, var(--aura), #ff4f6d); transition: width .4s; }
+.arhud-top span em { font-style: normal; color: #5ce1e6; }
+.arhud.lead { border-color: var(--ok); }
+@media (max-width: 879px) { body.arena .stage > .arhud { position: absolute; left: 0; right: 0; top: -2px; z-index: 7; padding: 4px 10px; } body.arena .stage { padding-top: 62px; } body.arena.sheet-open .stage { padding-top: 64px; } .arhud-top b { font-size: 17px; } body.arena .level { visibility: hidden; } }
+
 /* ===================== Temporada 2: visual novo, pensado primeiro para celular ===================== */
 @property --orb { syntax: '<length>'; inherits: true; initial-value: 200px; }
 :root {
@@ -831,6 +849,10 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       <div class="pink-banner" id="pinkBanner" aria-live="polite"></div>
       <div class="frenzy-banner" id="frenzyBanner" hidden></div>
       <div class="chall" id="chall" hidden aria-live="polite"></div>
+      <div class="arhud" id="arHud" hidden>
+        <div class="arhud-top"><b id="arClock">5:00</b><span id="arVs"></span><button class="ghost" id="arQuit" type="button">Desistir</button></div>
+        <div class="arbar" aria-hidden="true"><i id="arBarMe"></i></div>
+      </div>
 
       <div class="orb-wrap" id="orbWrap" data-lv="0">
 <svg class="bg-guy" id="guy" data-lv="0" viewBox="0 0 400 700" aria-hidden="true" focusable="false">
@@ -949,6 +971,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
         <button type="button" role="tab" id="tb-up" data-tab="up" aria-controls="tab-up" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Melhorias</span><i class="dot" hidden></i></button>
         <button type="button" role="tab" id="tb-ego" data-tab="ego" aria-controls="tab-ego" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18h18M4 18L3 7l5 4 4-7 4 7 5-4-1 11"/></svg><span>Ego</span><i class="dot" hidden></i></button>
         <button type="button" role="tab" id="tb-ach" data-tab="ach" aria-controls="tab-ach" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg><span>Conquistas</span><i class="dot" hidden></i></button>
+        <button type="button" role="tab" id="tb-arena" data-tab="arena" aria-controls="tab-arena" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6M16 16l4 4M19 21l2-2"/><path d="M9.5 17.5L21 6V3h-3L6.5 14.5"/><path d="M11 19l-6-6M8 16l-4 4M5 21l-2-2"/></svg><span>Arena</span><i class="dot" hidden></i></button>
         <button type="button" role="tab" id="tb-more" data-tab="more" aria-controls="tab-more" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2-1.2L14 3h-4l-.6 2.6a7 7 0 0 0-2 1.2l-2.3-.9-2 3.4 2 1.5A7 7 0 0 0 5 12a7 7 0 0 0 .1 1.2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 2 1.2L10 21h4l.6-2.6a7 7 0 0 0 2-1.2l2.3.9 2-3.4-2-1.5c.1-.4.1-.8.1-1.2z"/></svg><span>Mais</span><i class="dot" hidden></i></button>
       </nav>
 
@@ -1017,6 +1040,20 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       </div>
 
 
+      </div>
+
+      <div class="tabpanel" id="tab-arena" role="tabpanel" aria-labelledby="tb-arena" hidden>
+      <div class="sec">
+        <div class="sec-head"><h2>Arena</h2><span class="arcoins" id="arCoins"></span></div>
+        <p class="hint">Desafie quem está online. São 5 minutos e os dois começam do zero, sem ego, Loja do Ego nem bônus. Quem farmar mais aura ganha 1 moeda da Arena. Seu progresso normal fica guardado e volta igual no fim.</p>
+        <p class="arstatus" id="arStatus" aria-live="polite"></p>
+        <ul class="list" id="arOnline"></ul>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><h2>Loja da Arena</h2></div>
+        <p class="hint">Bônus permanentes no jogo normal (não valem dentro da Arena). Vale no máximo 3 moedas por dia e 1 por dia contra o mesmo jogador.</p>
+        <ul class="list" id="arShop"></ul>
+      </div>
       </div>
 
       <div class="tabpanel" id="tab-more" role="tabpanel" aria-labelledby="tb-more" hidden>
@@ -1098,6 +1135,25 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       <button class="primary" type="submit">Chutar</button>
     </form>
     <div class="row"><button class="ghost" id="eggHint" type="button">Dica de letra</button><small id="eggTime" style="color:var(--muted)"></small><button class="ghost" id="eggQuit" type="button">Desistir</button></div>
+  </div>
+</div>
+
+<div class="modal" id="duelModal" hidden role="dialog" aria-modal="true" aria-labelledby="duelTitle">
+  <div class="card">
+    <div class="eggico" aria-hidden="true">⚔️</div>
+    <h2 id="duelTitle">Desafio na Arena</h2>
+    <p class="sub" id="duelSub"></p>
+    <button class="primary" id="duelYes" type="button">Aceitar</button>
+    <div class="row"><button class="ghost" id="duelNo" type="button">Recusar</button><small id="duelTime" style="color:var(--muted)"></small></div>
+  </div>
+</div>
+
+<div class="modal" id="arResModal" hidden role="dialog" aria-modal="true" aria-labelledby="arResTitle">
+  <div class="card">
+    <div class="eggico" aria-hidden="true" id="arResIco">🏆</div>
+    <h2 id="arResTitle">Vitória</h2>
+    <p class="sub" id="arResSub"></p>
+    <button class="primary" id="arResClose" type="button">Voltar ao jogo</button>
   </div>
 </div>
 
@@ -1278,7 +1334,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   }
   var S = load();
   var noSave = false;
-  function save() { if (noSave) return; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  function save() { if (noSave || arenaOn) return; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
   function totalGens(s) { var n = 0; GENS.forEach(function (g) { n += s.gens[g.id] || 0; }); return n; }
   function levelOf(v) { var idx = 0; for (var i = 0; i < LEVELS.length; i++) if (v >= LEVELS[i].min) idx = i; return idx; }
@@ -1286,18 +1342,23 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   function achCount() { var n = 0; ACH.forEach(function (a) { if (S.ach[a.id]) n++; }); return n; }
 
   var frenzyLeft = 0, pinkLeft = 0;
+  // Arena (batalha entre jogadores): durante a batalha o estado S é uma rodada zerada e o save real fica guardado
+  var arenaOn = false, arFrozen = false, arItems = {};
+  function arLv(id) { return arItems && typeof arItems[id] === 'number' ? arItems[id] : 0; }
+  function arenaMult() { return arenaOn ? 1 : (arLv('campeao') > 0 ? 10 : 1) * Math.pow(2, arLv('grito')); }
+  function arenaAuto() { return arenaOn ? 0 : 5 * arLv('maos'); }
   // Dias especiais (11, 12 e 24 de todo mês): aura x2 o dia inteiro
-  function specialDay() { var d = new Date().getDate(); return d === 11 || d === 12 || d === 24; }
+  function specialDay() { if (arenaOn) return false; var d = new Date().getDate(); return d === 11 || d === 12 || d === 24; }
   function multAll() { var m = 1; S.mults.forEach(function (o, i) { if (o) m *= MULTS[i].x; }); return m; }
   function egoMult() { return 1 + S.ego * 0.06; }
   function powerMult() { return Math.pow(1.25, S.eu.power || 0); }
-  function levelBonus() { return 1 + 0.04 * levelIndex(); }
-  function achBonus() { return 1 + 0.02 * achCount(); }
-  function globalMult() { return multAll() * egoMult() * powerMult() * levelBonus() * achBonus() * (frenzyLeft > 0 ? 5 : 1) * haterMult() * (turboLeft > 0 ? 3 : 1) * (pinkLeft > 0 ? 3 : 1) * (specialDay() ? 2 : 1) * queenMult(); }
+  function levelBonus() { return arenaOn ? 1 : 1 + 0.04 * levelIndex(); }
+  function achBonus() { return arenaOn ? 1 : 1 + 0.02 * achCount(); }
+  function globalMult() { return multAll() * egoMult() * powerMult() * levelBonus() * achBonus() * (frenzyLeft > 0 ? 5 : 1) * haterMult() * (turboLeft > 0 ? 3 : 1) * (pinkLeft > 0 ? 3 : 1) * (specialDay() ? 2 : 1) * queenMult() * arenaMult(); }
   // bênção secreta: só a conta "bequinha" logada farma mais
   var QUEEN_MULT = 5;
   var QUEEN_AUTO = 10; // cliques automáticos por segundo, além das Mãos fantasmas
-  function queenMult() { return ses && String(ses.nick || '').trim().toLowerCase() === 'bequinha' ? QUEEN_MULT : 1; }
+  function queenMult() { return !arenaOn && ses && String(ses.nick || '').trim().toLowerCase() === 'bequinha' ? QUEEN_MULT : 1; }
   function baseRate() { var r = 0; GENS.forEach(function (g) { r += (S.gens[g.id] || 0) * g.rate; }); return r * globalMult(); }
   function clickBase() { return ((1 + S.click) * Math.pow(2, Math.floor(S.click / 10)) * globalMult()) + baseRate() * 0.025; }
   var EGO_MIN = 1e6;
@@ -1323,6 +1384,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   function fmtInt(n) { return Math.floor(n).toLocaleString('pt-BR'); }
 
   function add(x) {
+    if (arFrozen) return;
     S.aura += x; S.run += x; S.earned += x;
     if (S.run > S.best) S.best = S.run;
     checkSixtySeven();
@@ -1895,7 +1957,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       }
       return;
     }
-    if (document.hidden || levelIndex() < 1) { pinkAt = Math.max(pinkAt, now + 5000); return; }
+    if (document.hidden || arenaOn || levelIndex() < 1) { pinkAt = Math.max(pinkAt, now + 5000); return; }
     if (now >= pinkAt) startPink();
   }
   function startPink() {
@@ -2138,7 +2200,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   var egoArmed = false, egoTimer;
   el.egoBtn.addEventListener('click', function () {
     var g = egoGain();
-    if (g < 1) return;
+    if (g < 1 || arenaOn) return;
     if (!egoArmed) {
       egoArmed = true; update();
       clearTimeout(egoTimer);
@@ -2313,7 +2375,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   // ---------- Abas e dica do próximo passo ----------
   // No celular as abas abrem um painel de baixo (o 67 continua visível); tocar na aba ativa fecha o painel
   var tabBtns = Array.prototype.slice.call(document.querySelectorAll('#tabbar button'));
-  var TAB_NAMES = { up: 'Melhorias', ego: 'Ego', ach: 'Conquistas', more: 'Mais' }, curTab = 'up';
+  var TAB_NAMES = { up: 'Melhorias', ego: 'Ego', ach: 'Conquistas', arena: 'Arena', more: 'Mais' }, curTab = 'up';
   function isMobile() { return window.innerWidth < 880; }
   function sheetOpen() { return document.body.classList.contains('sheet-open'); }
   function closeSheet() { document.body.classList.remove('sheet-open'); tabBtns.forEach(function (b) { b.classList.remove('on'); }); }
@@ -2350,6 +2412,11 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     for (var i = 0; i < EUP.length; i++) { var u = EUP[i]; if ((S.eu[u.id] || 0) < u.max && egoAvail() >= euCost(u)) return true; }
     return false;
   }
+  function arAffordable() {
+    if (arenaOn || !ses || typeof AR_ITEMS === 'undefined') return false;
+    for (var i = 0; i < AR_ITEMS.length; i++) { var c = AR_ITEMS[i].prices[arLv(AR_ITEMS[i].id)]; if (c !== undefined && arCoins >= c) return true; }
+    return false;
+  }
   function renderGuide() {
     var g = egoGain(), tip = null, tab = null, gold = false;
     var egoReady = g >= 1 && (S.inflations === 0 || g >= Math.max(2, S.ego * 0.25));
@@ -2361,7 +2428,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     else if (S.clicks < 30 && totalGens(S) === 0) { tip = 'Clique no 67 para juntar aura. Depois gaste em Melhorias.'; tab = null; }
     $('tip').hidden = !tip; $('tip').classList.toggle('egoon', gold);
     if (tip) { T($('tipText'), tip); tipTab = tab; $('tipGo').hidden = !tab; }
-    var dots = { up: anyAffordable() ? 'ok' : '', ego: (egoReady || egoAffordable()) ? 'gold' : '' };
+    var dots = { up: anyAffordable() ? 'ok' : '', ego: (egoReady || egoAffordable()) ? 'gold' : '', arena: arAffordable() ? 'gold' : '' };
     tabBtns.forEach(function (b) {
       var d = b.querySelector('.dot'), k = dots[b.getAttribute('data-tab')] || '';
       d.hidden = !k; d.classList.toggle('egoon', k === 'gold');
@@ -2412,7 +2479,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     T(el.egoN, fmt(S.ego));
     T(el.egoMult, 'x' + fmt(egoMult()));
     T(el.egoGain, '+' + fmt(g));
-    el.egoBtn.disabled = g < 1;
+    el.egoBtn.disabled = g < 1 || arenaOn;
     el.egoBtn.classList.toggle('armed', egoArmed);
     T(el.egoBtn, g < 1 ? 'Junte ' + fmt(EGO_MIN) + ' de aura na rodada para inflar' : (egoArmed ? 'Confirmar: zera aura e geradores' : 'Inflar o ego (+' + fmt(g) + ')'));
     T(el.egoAv, fmt(egoAvail()) + ' de ego para gastar');
@@ -2457,7 +2524,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 
     // conquistas
     ACH.forEach(function (a, i) {
-      if (!S.ach[a.id] && a.t(S)) { S.ach[a.id] = 1; say('Conquista: ' + a.n + '. +2% de aura.'); save(); }
+      if (!arenaOn && !S.ach[a.id] && a.t(S)) { S.ach[a.id] = 1; say('Conquista: ' + a.n + '. +2% de aura.'); save(); }
       achChips[i].classList.toggle('on', !!S.ach[a.id]);
     });
     renderGuide();
@@ -2496,7 +2563,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     // produção
     var r = baseRate();
     if (r > 0) add(r * dt);
-    var au = (S.eu.auto || 0) + (queenMult() > 1 ? QUEEN_AUTO : 0);
+    var au = (S.eu.auto || 0) + (queenMult() > 1 ? QUEEN_AUTO : 0) + arenaAuto();
     if (au > 0) {
       add(au * clickBase() * dt);
       autoFx += dt;
@@ -2563,7 +2630,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   }
   function sig() { return [S.earned, S.ego, S.egoSpent, S.clicks, S.aura, S.click].join(','); }
   function push(keep) {
-    if (!CLOUD || !ses || pushing) return Promise.resolve();
+    if (!CLOUD || !ses || pushing || arenaOn) return Promise.resolve();
     var sg = sig();
     if (sg === lastSig && !keep) return Promise.resolve();
     var tk = (keep && ses.exp - Date.now() / 1000 > 5) ? Promise.resolve(ses.token) : getToken();
@@ -2576,7 +2643,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   function renderAcct() {
     $('acct').hidden = !CLOUD;
     var on = !!ses;
-    $('who').hidden = !on; $('who').textContent = on ? ses.nick + (isQueen(ses.nick) ? ' 👑' : '') : '';
+    $('who').hidden = !on; $('who').textContent = on ? ses.nick + (isQueen(ses.nick) ? ' 👑' : '') + (arLv('titulo') > 0 ? ' ⚔️' : '') : '';
     $('logoutBtn').hidden = !on; $('loginBtn').hidden = on;
     if (queenMult() > 1 && !queenSaid) { queenSaid = true; setTimeout(function () { showBanner('Bênção da Bequinha 👑', 'Aura x' + QUEEN_MULT + ' · ' + QUEEN_AUTO + ' cliques/s'); say('👑 Bênção da Bequinha ativa: toda aura x' + QUEEN_MULT + ' e ' + QUEEN_AUTO + ' cliques automáticos por segundo.'); }, 1200); }
   }
@@ -2630,11 +2697,17 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 
   // nicks que ganham a coroa no ranking e no topo
   function isQueen(n) { n = String(n || '').trim().toLowerCase(); return n === 'bequinha' || n === 'rebeca'; }
+  var rankCols = 'nick,aura,ego,level,earned,gladiador';
   function openRank() { $('rankModal').hidden = false; loadRank(); clearInterval(rankTimer); rankTimer = setInterval(loadRank, 30000); }
   function closeRank() { $('rankModal').hidden = true; clearInterval(rankTimer); }
   function loadRank() {
     var go = function () {
-      return http('/rest/v1/ranking?select=nick,aura,ego,level,earned&order=' + rankOrder + '.desc,nick.asc&limit=100', 'GET');
+      return http('/rest/v1/ranking?select=' + rankCols + '&order=' + rankOrder + '.desc,nick.asc&limit=100', 'GET')
+        .catch(function (e) {
+          // servidor sem o arena.sql ainda: ranking sem a coluna do título
+          if (rankCols.indexOf('gladiador') >= 0 && e.status === 400) { rankCols = 'nick,aura,ego,level,earned'; return go(); }
+          throw e;
+        });
     };
     (ses ? push() : Promise.resolve()).then(go).then(function (rows) {
       var body = $('rankBody'); body.textContent = '';
@@ -2645,7 +2718,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
         if (i < 3) tr.classList.add('top' + (i + 1));
         var queen = isQueen(r.nick);
         if (queen) tr.classList.add('queen');
-        var cells = [i < 3 ? ['🥇', '🥈', '🥉'][i] : String(i + 1), queen ? r.nick + ' 👑' : r.nick, fmt(r.earned), fmt(r.ego), LEVELS[Math.min(r.level, LEVELS.length - 1)].name];
+        var cells = [i < 3 ? ['🥇', '🥈', '🥉'][i] : String(i + 1), r.nick + (queen ? ' 👑' : '') + (r.gladiador ? ' ⚔️' : ''), fmt(r.earned), fmt(r.ego), LEVELS[Math.min(r.level, LEVELS.length - 1)].name];
         cells.forEach(function (t, k) {
           var td = document.createElement('td'); td.textContent = t;
           if (k === 3) td.className = 'egoc';
@@ -2775,7 +2848,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       else T($('eggTime'), Math.ceil(egg.left) + 's · prêmio ' + fmt(eggPrize()));
       return;
     }
-    if (levelIndex() < 1) { eggAt = Math.max(eggAt, now + 5000); return; }
+    if (arenaOn || levelIndex() < 1) { eggAt = Math.max(eggAt, now + 5000); return; }
     if (!eggOn && now >= eggAt) showEgg();
     else if (eggOn && now >= eggHideAt) { hideEgg(); say('O ovo secreto sumiu. Ele volta.'); }
   }
@@ -2787,8 +2860,245 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     });
   });
 
+  // ---------- Arena: batalha entre jogadores (Supabase via REST; regras e moedas no arena.sql) ----------
+  var AR_ITEMS = [
+    { id: 'campeao', name: 'Aura do Campeão', desc: 'x10 em toda a aura, para sempre.', prices: [1], icon: 'coroa' },
+    { id: 'grito', name: 'Grito de guerra', desc: 'x2 em toda a aura por nível, para sempre.', prices: [2, 5, 10, 15, 20], icon: 'super' },
+    { id: 'maos', name: 'Mãos de gladiador', desc: '+5 cliques automáticos por segundo por nível.', prices: [1, 3, 6, 10, 15], icon: 'pose' },
+    { id: 'titulo', name: 'Título Gladiador', desc: '⚔️ ao lado do seu nick no ranking.', prices: [1], icon: 'lenda' }
+  ];
+  var AR_KEY = 'aura67.arena';
+  var AR_REASON = { pontos: 'no placar', empate: 'empate', wo: 'por W.O.', desistencia: 'por desistência', abandono: 'os dois saíram' };
+  var arCoins = 0, arWins = 0, arReady = false, arBusy = false, arNext = 0, arBattle = null, arStash = null;
+  var arStartAt = 0, arEndAt = 0, arDuel = null, arDuelEnd = 0, arList = null, arListAt = 0, arErrN = 0;
+  var arShopRows = [];
+  function arLoadCache() {
+    try { var ac = JSON.parse(lsGet(AR_KEY) || 'null'); if (ac && ses && ac.uid === ses.uid) { arItems = ac.items || {}; arCoins = ac.coins || 0; arWins = ac.wins || 0; } } catch (e) {}
+  }
+  var AR_LOGIN = 'Entre com sua conta para batalhar.';
+  function rpc(fn, args) { return getToken().then(function (t) { return http('/rest/v1/rpc/' + fn, 'POST', args || {}, t); }); }
+  function arNice(e) {
+    var m = String(e && e.message || e);
+    if (/arena_|function|schema cache|404/i.test(m)) return 'A Arena ainda não foi ativada no servidor (falta rodar o arena.sql).';
+    return niceErr(e).replace(/^Erro: /, '');
+  }
+  function arSetWallet(j) {
+    if (!j) return;
+    arItems = j.items && typeof j.items === 'object' ? j.items : {};
+    arCoins = +j.coins || 0; arWins = +j.wins || 0; arReady = true;
+    if (ses) lsSet(AR_KEY, JSON.stringify({ uid: ses.uid, items: arItems, coins: arCoins, wins: arWins }));
+  }
+  function arStatus(t) { T($('arStatus'), t || ''); }
+  function clock(s) { s = Math.max(0, Math.ceil(s)); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+
+  // Loja da Arena
+  arShopRows = AR_ITEMS.map(function (it) {
+    var li = document.createElement('li');
+    li.className = 'item arit';
+    li.innerHTML = '<div class="ico" aria-hidden="true">' + icon(it.icon) + '</div><div class="info"><strong></strong><span class="desc"></span><span class="meta"></span></div>' +
+      '<button class="buy ar-b" type="button"><span class="q">Moedas</span><span class="c"></span></button>';
+    li.querySelector('strong').textContent = it.name;
+    li.querySelector('.desc').textContent = it.desc;
+    var btn = li.querySelector('.buy');
+    btn.addEventListener('click', function () {
+      var lv = arLv(it.id), c = it.prices[lv];
+      if (c === undefined || arCoins < c || arBusy) return;
+      btn.disabled = true;
+      rpc('arena_buy', { p_item: it.id }).then(function (j) {
+        arSetWallet(j); buyFx(btn); say(it.name + (it.prices.length > 1 ? ' no nível ' + arLv(it.id) : '') + '. Bônus permanente ativo.');
+        renderAcct();
+      }).catch(function (e) { arStatus(arNice(e)); }).then(function () { update(); renderArena(); });
+    });
+    $('arShop').appendChild(li);
+    return { li: li, it: it, btn: btn, meta: li.querySelector('.meta'), c: li.querySelector('.c') };
+  });
+
+  function renderArena() {
+    T($('arCoins'), ses ? fmtInt(arCoins) + (arCoins === 1 ? ' moeda' : ' moedas') + ' · ' + fmtInt(arWins) + (arWins === 1 ? ' vitória' : ' vitórias') : '');
+    arShopRows.forEach(function (r) {
+      var lv = arLv(r.it.id), c = r.it.prices[lv], max = r.it.prices.length;
+      T(r.meta, max > 1 ? 'Nível ' + lv + ' de ' + max : (lv ? 'Comprado' : 'Compra única'));
+      T(r.c, c === undefined ? 'Máximo' : String(c));
+      r.btn.disabled = !ses || c === undefined || arCoins < c || arenaOn;
+      r.li.classList.toggle('can', !r.btn.disabled);
+    });
+    var box = $('arOnline');
+    if (!CLOUD || !ses) { box.textContent = ''; if (!arenaOn) arStatus(AR_LOGIN); return; }
+    if ($('arStatus').textContent === AR_LOGIN) arStatus('');
+    if (arenaOn) { box.textContent = ''; return; }
+    if (!arList) return;
+    box.textContent = '';
+    if (!arList.length) { var e0 = document.createElement('li'); e0.className = 'hint'; e0.textContent = 'Ninguém online agora. Chame um amigo para abrir o jogo.'; box.appendChild(e0); return; }
+    arList.forEach(function (p) {
+      var li = document.createElement('li');
+      li.className = 'item arit';
+      li.innerHTML = '<div class="ico" aria-hidden="true">⚔️</div><div class="info"><strong></strong><span class="meta"></span></div><button class="buy ar-b" type="button"><span class="q">Arena</span><span class="c"></span></button>';
+      li.querySelector('strong').textContent = p.nick + (isQueen(p.nick) ? ' 👑' : '');
+      T(li.querySelector('.meta'), LEVELS[Math.min(p.level || 0, LEVELS.length - 1)].name);
+      var b = li.querySelector('.buy');
+      T(b.querySelector('.c'), p.busy ? 'Ocupado' : 'Desafiar');
+      b.disabled = !!p.busy || !!arBattle;
+      b.addEventListener('click', function () { challenge(p.nick, b); });
+      box.appendChild(li);
+    });
+  }
+  function loadOnline() {
+    if (!CLOUD || !ses || arenaOn) return;
+    arListAt = Date.now();
+    rpc('arena_online').then(function (rows) { arList = rows || []; arErrN = 0; renderArena(); })
+      .catch(function (e) { arList = null; $('arOnline').textContent = ''; arStatus(arNice(e)); });
+  }
+  function challenge(nick, b) {
+    if (arBusy || arBattle) return;
+    b.disabled = true; arBusy = true;
+    rpc('arena_challenge', { p_nick: nick }).then(function (v) { onBattle(v); })
+      .catch(function (e) { arStatus(arNice(e)); loadOnline(); })
+      .then(function () { arBusy = false; arNext = Date.now() + 2000; });
+  }
+
+  // Convite (recebido ou enviado)
+  function showDuel(v) {
+    arDuel = v.id; arDuelEnd = Date.now() + (v.expires_in || 0) * 1000;
+    T($('duelTitle'), v.mine ? 'Desafio enviado' : 'Desafio na Arena');
+    T($('duelSub'), v.mine ? 'Esperando ' + v.opp + ' aceitar. Se aceitar, a batalha começa na hora.' : v.opp + ' te desafiou para a Arena: 5 minutos, os dois do zero, quem farmar mais aura ganha uma moeda.');
+    $('duelYes').hidden = !!v.mine;
+    T($('duelNo'), v.mine ? 'Cancelar' : 'Recusar');
+    if ($('duelModal').hidden) { $('duelModal').hidden = false; if (!v.mine) { fireSound('desafio', true); buzz([80, 40, 80]); } }
+  }
+  function hideDuel() { arDuel = null; $('duelModal').hidden = true; }
+  $('duelYes').addEventListener('click', function () {
+    if (!arDuel || arBusy) return;
+    var id = arDuel; arBusy = true; $('duelYes').disabled = true;
+    rpc('arena_respond', { p_id: id, p_accept: true }).then(function (v) { onBattle(v); })
+      .catch(function (e) { hideDuel(); arBattle = null; say('Arena: ' + arNice(e)); })
+      .then(function () { arBusy = false; $('duelYes').disabled = false; });
+  });
+  $('duelNo').addEventListener('click', function () {
+    if (!arDuel) return;
+    var id = arDuel; hideDuel(); arBattle = null;
+    rpc('arena_quit', { p_id: id }).catch(function () {}).then(function () { arNext = 0; loadOnline(); });
+  });
+
+  // Estado vindo do servidor
+  function onBattle(v) {
+    if (!v) {
+      if (arDuel) { var mine = arBattle && arBattle.mine; hideDuel(); if (mine) arStatus('O desafio expirou ou foi recusado.'); }
+      arBattle = null; renderArena(); return;
+    }
+    if (v.status === 'pending') { arBattle = v; showDuel(v); arStatus(v.mine ? 'Esperando ' + v.opp + ' aceitar...' : ''); renderArena(); return; }
+    if (v.status === 'active') {
+      hideDuel();
+      if (arenaOn) { arBattle = v; arSync(v); return; }
+      // entra na batalha (também quando a página foi recarregada no meio: volta do zero, com o tempo que sobrou)
+      enterArena(v); return;
+    }
+    // encerrada, recusada ou expirada
+    if (arDuel && v.status !== 'done') { hideDuel(); arStatus(v.mine ? v.opp + ' recusou o desafio.' : ''); }
+    if (arenaOn && v.status === 'done') { exitArena(v); return; }
+    arBattle = null; renderArena();
+  }
+
+  function enterArena(v) {
+    save(); // garante o save real no aparelho antes de trocar
+    push(true);
+    arStash = S; S = fresh(); arenaOn = true; arBattle = v;
+    frenzyLeft = 0; combo = 0; clearHaters(); chall = null; turboLeft = 0; lastLevel = 0; prevK = 0;
+    if (pinkLeft > 0) { pinkLeft = 0; document.body.classList.remove('pink'); guy.classList.remove('girl'); }
+    if (egg) closeEgg(); if (eggOn) hideEgg(); if (goldOn) hideGold();
+    var now = Date.now();
+    goldAt = now + 60000 + Math.random() * 90000; haterAt = now + 30000; bossAt = now + 150000; challAt = now + 60000;
+    arStartAt = now + Math.max(0, v.starts_in || 0) * 1000;
+    arEndAt = now + Math.max(0, +v.left || 0) * 1000;
+    arFrozen = true; arErrN = 0;
+    $('arResModal').hidden = true;
+    document.body.classList.add('arena'); closeSheet();
+    $('arHud').hidden = false; arStatus('Batalha contra ' + v.opp + ' em andamento.');
+    say('Arena contra ' + v.opp + '. Tudo zerado, 5 minutos. Farma!');
+    arSync(v); renderArena(); update();
+  }
+  function arSync(v) {
+    if (v.left !== null && !arFrozen) arEndAt = Date.now() + v.left * 1000;
+    renderHud(v);
+  }
+  function renderHud(v) {
+    v = v || arBattle; if (!v) return;
+    var now = Date.now(), me = S.earned, op = +v.opp_score || 0;
+    T($('arClock'), now < arStartAt ? 'Em ' + Math.ceil((arStartAt - now) / 1000) : clock((arEndAt - now) / 1000));
+    var vs = $('arVs'), tx = 'Você ' + fmt(me) + ' × ' + fmt(op) + ' ' + v.opp;
+    if (vs.getAttribute('data-t') !== tx) {
+      vs.setAttribute('data-t', tx); vs.textContent = 'Você ' + fmt(me) + ' × ';
+      var em = document.createElement('em'); em.textContent = fmt(op) + ' ' + v.opp; vs.appendChild(em);
+    }
+    var tot = me + op;
+    $('arBarMe').style.width = (tot > 0 ? me / tot * 100 : 50).toFixed(1) + '%';
+    $('arHud').classList.toggle('lead', me > op);
+  }
+  function exitArena(v) {
+    var my = S.earned;
+    S = arStash || load(); arStash = null; arenaOn = false; arFrozen = false; arBattle = null;
+    frenzyLeft = 0; combo = 0; clearHaters(); chall = null; turboLeft = 0; lastLevel = levelIndex(); prevK = Math.floor(S.earned / 67);
+    document.body.classList.remove('arena'); $('arHud').hidden = true;
+    save(); arStatus(''); update(); renderCombo();
+    var r = v.result, ico = r === 'win' ? '🏆' : r === 'draw' ? '🤝' : '💀';
+    T($('arResIco'), ico);
+    T($('arResTitle'), r === 'win' ? 'Vitória!' : r === 'draw' ? 'Empate' : 'Derrota');
+    var sub = 'Você ' + fmt(Math.max(my, +v.me_score || 0)) + ' × ' + fmt(+v.opp_score || 0) + ' ' + v.opp + ' (' + (AR_REASON[v.reason] || v.reason || '') + '). ';
+    if (r === 'win') sub += v.coin ? '+1 moeda da Arena. Gaste na Loja da Arena.' : 'Sem moeda desta vez: limite do dia (3 por dia, 1 por oponente).';
+    else sub += 'Seu progresso normal voltou igual.';
+    T($('arResSub'), sub);
+    $('arResModal').hidden = false;
+    if (r === 'win') { fireSound('vitoria', true); confetti(); buzz([60, 40, 120]); }
+    arNext = 0; arPing();
+  }
+  $('arResClose').addEventListener('click', function () { $('arResModal').hidden = true; });
+  $('arQuit').addEventListener('click', function () {
+    if (!arenaOn || !arBattle) return;
+    var b = $('arQuit');
+    if (!b.classList.contains('armed')) { b.classList.add('armed'); T(b, 'Confirmar'); setTimeout(function () { b.classList.remove('armed'); T(b, 'Desistir'); }, 3000); return; }
+    b.classList.remove('armed'); T(b, 'Desistir');
+    rpc('arena_quit', { p_id: arBattle.id }).then(onBattle).catch(function (e) { say('Arena: ' + arNice(e)); });
+  });
+
+  function arPing() {
+    if (arBusy) return;
+    arBusy = true;
+    rpc('arena_ping').then(function (j) { arErrN = 0; arSetWallet(j); onBattle(j.battle); renderAcct(); update(); })
+      .catch(function (e) { arErrN++; if (curTab === 'arena') arStatus(arNice(e)); })
+      .then(function () { arBusy = false; });
+  }
+  function arTick() {
+    if (arBusy || !arBattle) return;
+    arBusy = true;
+    rpc('arena_tick', { p_id: arBattle.id, p_score: S.earned }).then(function (v) { arErrN = 0; onBattle(v); })
+      .catch(function () { arErrN++; })
+      .then(function () { arBusy = false; });
+  }
+  // Relógio da Arena: decide quando falar com o servidor
+  setInterval(function () {
+    if (!CLOUD || !ses) return;
+    var now = Date.now();
+    if (arenaOn) {
+      arFrozen = now < arStartAt || now >= arEndAt;
+      renderHud();
+      if (now >= arNext) { arNext = now + (now >= arEndAt ? 1000 : 2000); arTick(); }
+      return;
+    }
+    if (arDuel) {
+      var left = (arDuelEnd - now) / 1000;
+      T($('duelTime'), left > 0 ? Math.ceil(left) + 's' : '');
+      if (left < -3) hideDuel();
+    }
+    if (document.hidden) return;
+    if (now >= arNext) { arNext = now + (arDuel ? 2000 : 5000); arPing(); }
+    if (curTab === 'arena' && (sheetOpen() || !isMobile()) && now - arListAt > 6000) loadOnline();
+  }, 250);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && !arenaOn) arNext = 0; });
+  tabBtns.forEach(function (b) { if (b.getAttribute('data-tab') === 'arena') b.addEventListener('click', function () { arStatus(''); arListAt = 0; renderArena(); }); });
+  renderArena();
+
   if (CLOUD) {
     try { var rs = JSON.parse(lsGet(SES_KEY) || 'null'); if (rs && rs.token && rs.uid) ses = rs; } catch (e) {}
+    arLoadCache(); renderArena();
     renderAcct();
     $('saveNote').textContent = 'O progresso fica salvo neste navegador e, com conta, na nuvem.';
     var skipped = false; try { skipped = sessionStorage.getItem('aura67.guest') === '1'; } catch (e) {}

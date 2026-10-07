@@ -191,7 +191,9 @@ body.frenzy .bg-guy { opacity: .5; }
 /* Hora premiada: tudo rosa e o boneco vira a menina */
 .bg-guy .girl-only { display: none; }
 .bg-guy.girl .girl-only { display: inline; }
-.bg-guy.girl .shades, .bg-guy.girl .glint, .bg-guy.girl .eyes { display: none; }
+.bg-guy.girl .shades, .bg-guy.girl .glint, .bg-guy.girl .eyes, .bg-guy.girl .jacket, .bg-guy.girl .pants, .bg-guy.girl .shirt, .bg-guy.girl .tie,
+.bg-guy.girl .head, .bg-guy.girl .cap, .bg-guy.girl .hair-s, .bg-guy.girl .mouth, .bg-guy.girl .body-wrap > .skin2, .bg-guy.girl .body-wrap > path[stroke="#120c2b"], .bg-guy.girl .chain { display: none; }
+.bg-guy.girl .sleeve { stroke-width: 22px; }
 .bg-guy.girl .skin { fill: #f9dfcf; }
 .bg-guy.girl .skin2 { fill: #f0cdb8; }
 .bg-guy.girl .hair { fill: #b08158; }
@@ -200,7 +202,7 @@ body.frenzy .bg-guy { opacity: .5; }
 .bg-guy.girl .shirt { fill: #ffffff; }
 .bg-guy.girl .tie { fill: #ff8fc4; }
 .bg-guy.girl .pants { fill: #3bb8a3; }
-.bg-guy.girl .sleeve { stroke: #52cdb7; }
+.bg-guy.girl .sleeve { stroke: #62d7c3; }
 .bg-guy.girl .mouth { stroke: #d9577a; }
 body.pink { --aura: #ff5fae; --aura-2: #ffa3d7; --bh: 330 !important; }
 body.pink .pink-banner { display: block; }
@@ -220,8 +222,8 @@ body.pink::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-
 @keyframes eggWiggle { 0%, 100% { rotate: -10deg; } 50% { rotate: 10deg; } }
 #eggModal .card { text-align: center; }
 #eggModal .eggico { font-size: 52px; line-height: 1; margin-bottom: 6px; animation: eggWiggle 1.2s ease-in-out infinite; }
-.eggslots { display: flex; justify-content: center; gap: 6px; margin: 4px 0 14px; }
-.eggslots b { width: 40px; height: 48px; display: grid; place-items: center; border-radius: 10px; border: 2px solid var(--line); background: var(--bg); font-family: var(--font-display); font-weight: 400; font-size: 22px; color: #ff9bd6; text-transform: uppercase; }
+.eggslots { display: flex; justify-content: center; gap: 5px; margin: 4px 0 14px; }
+.eggslots b { width: 34px; height: 46px; display: grid; place-items: center; border-radius: 10px; border: 2px solid var(--line); background: var(--bg); font-family: var(--font-display); font-weight: 400; font-size: 22px; color: #ff9bd6; text-transform: uppercase; }
 .eggslots b.on { border-color: #ff9bd6; box-shadow: 0 0 12px -2px #ff9bd6; }
 #eggIn { display: block; width: 100%; margin-bottom: 6px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); font: inherit; font-size: 18px; text-align: center; letter-spacing: .2em; text-transform: uppercase; }
 #eggModal.shake .card { animation: shakeLg .4s ease-out; }
@@ -865,18 +867,38 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     <path class="shirt" d="M174 252 L200 334 L226 252 Z" fill="#efeaff"/>
     <path class="tie" d="M196 266 L204 266 L209 332 L200 356 L191 332 Z" fill="var(--aura-2)"/>
     <path d="M174 252 L152 300 L196 338 M226 252 L248 300 L204 338" fill="none" stroke="#120c2b" stroke-width="3" stroke-linejoin="round"/>
-    <g class="girl-only"><path class="hair" d="M136 168 Q128 96 200 92 Q272 96 264 168 Q270 250 252 306 Q232 318 222 300 L178 300 Q168 318 148 306 Q130 250 136 168 Z" fill="#b08158"/></g>
     <rect class="skin2" x="184" y="222" width="32" height="36" rx="10" fill="#d49a72"/>
     <ellipse class="skin2" cx="146" cy="172" rx="8" ry="15" fill="#dba27a"/>
     <ellipse class="skin2" cx="254" cy="172" rx="8" ry="15" fill="#dba27a"/>
-    <ellipse class="skin" cx="200" cy="170" rx="52" ry="62" fill="#e8b48a"/>
-    <path class="hair" d="M146 166 Q144 98 200 100 Q256 98 254 166 Q238 132 200 130 Q162 132 146 166 Z" fill="#140d26"/>
+    <ellipse class="skin head" cx="200" cy="170" rx="52" ry="62" fill="#e8b48a"/>
+    <path class="hair cap" d="M146 166 Q144 98 200 100 Q256 98 254 166 Q238 132 200 130 Q162 132 146 166 Z" fill="#140d26"/>
     <path class="hair-s" d="M150 118 Q200 84 252 118" fill="none" stroke="#140d26" stroke-width="10" stroke-linecap="round"/>
-    <g class="girl-only"><path class="hair" d="M148 150 Q150 104 200 102 Q250 104 252 150 Q232 122 206 128 Q176 120 148 150 Z" fill="#b08158"/><ellipse cx="166" cy="196" rx="9" ry="5" fill="#ff9bb8" opacity=".55"/><ellipse cx="234" cy="196" rx="9" ry="5" fill="#ff9bb8" opacity=".55"/></g>
+    <g class="girl-only">
+      <path d="M140 170 Q130 92 200 88 Q270 92 260 170 Q266 252 250 318 Q236 330 226 314 L174 314 Q164 330 150 318 Q134 252 140 170 Z" fill="#a8774e"/>
+      <rect x="158" y="560" width="32" height="140" rx="12" fill="#f3d3c0"/>
+      <rect x="210" y="560" width="32" height="140" rx="12" fill="#f3d3c0"/>
+      <path d="M118 318 Q118 262 170 254 L230 254 Q282 262 282 318 Q272 392 262 438 L274 572 L126 572 L138 438 Q128 392 118 318 Z" fill="#62d7c3" stroke="#dffff8" stroke-opacity=".7" stroke-width="2"/>
+      <path d="M176 256 Q200 286 224 256" fill="#f6dccd"/>
+      <path d="M138 438 Q200 452 262 438" fill="none" stroke="#3fb5a1" stroke-width="5" stroke-linecap="round"/>
+      <path d="M126 572 L274 572 L282 612 L118 612 Z" fill="#45bfa9"/>
+      <rect x="190" y="224" width="20" height="36" rx="8" fill="#f1cfbc"/>
+      <ellipse cx="200" cy="168" rx="43" ry="57" fill="#fae2d4"/>
+      <path d="M150 158 Q152 100 200 98 Q250 100 252 158 Q240 126 214 122 Q196 140 168 132 Q156 140 150 158 Z" fill="#a8774e"/>
+      <path d="M158 140 Q148 200 156 250 L146 252 Q136 196 150 140 Z M242 140 Q252 200 244 250 L254 252 Q264 196 250 140 Z" fill="#9a6b44"/>
+      <path d="M166 156 Q177 150 188 155 M212 155 Q223 150 234 156" fill="none" stroke="#7a5236" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M166 174 Q177 165 188 174 Q177 180 166 174 Z M212 174 Q223 165 234 174 Q223 180 212 174 Z" fill="#fff"/>
+      <circle cx="177" cy="174" r="4.6" fill="#5a3b28"/><circle cx="223" cy="174" r="4.6" fill="#5a3b28"/>
+      <circle cx="178.6" cy="172.4" r="1.5" fill="#fff"/><circle cx="224.6" cy="172.4" r="1.5" fill="#fff"/>
+      <path d="M164 173 Q177 162 190 172 M210 172 Q223 162 236 173 M164 173 L160 169 M236 173 L240 169" fill="none" stroke="#2a1a14" stroke-width="2.4" stroke-linecap="round"/>
+      <path d="M200 182 Q197 194 201 197" fill="none" stroke="#e2b29a" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="166" cy="196" rx="8" ry="4" fill="#ffa8c2" opacity=".35"/><ellipse cx="234" cy="196" rx="8" ry="4" fill="#ffa8c2" opacity=".35"/>
+      <ellipse cx="177" cy="173" rx="19" ry="13" fill="#ffd0e4" fill-opacity=".28" stroke="#5c3d2e" stroke-width="2.2"/>
+      <ellipse cx="223" cy="173" rx="19" ry="13" fill="#ffd0e4" fill-opacity=".28" stroke="#5c3d2e" stroke-width="2.2"/>
+      <path d="M196 171 Q200 167 204 171 M158 170 L150 167 M242 170 L250 167" fill="none" stroke="#5c3d2e" stroke-width="2.2" stroke-linecap="round"/>
+    </g>
     <g class="shades"><rect x="156" y="160" width="40" height="24" rx="7" fill="#0a0714"/>
     <rect x="204" y="160" width="40" height="24" rx="7" fill="#0a0714"/>
     <path d="M196 168 H204" stroke="#0a0714" stroke-width="4"/></g>
-    <g class="girl-only"><ellipse cx="176" cy="172" rx="21" ry="14" fill="#ffc2dc" fill-opacity=".45" stroke="#6b4a3a" stroke-width="3"/><ellipse cx="224" cy="172" rx="21" ry="14" fill="#ffc2dc" fill-opacity=".45" stroke="#6b4a3a" stroke-width="3"/><path d="M197 170 Q200 166 203 170 M155 168 L146 165 M245 168 L254 165" fill="none" stroke="#6b4a3a" stroke-width="3" stroke-linecap="round"/><circle cx="176" cy="173" r="3.2" fill="#3a2a22"/><circle cx="224" cy="173" r="3.2" fill="#3a2a22"/></g>
     <g class="glint"><path d="M162 163 L172 163 L164 181 L156 181 Z" fill="#fff"/><path d="M210 163 L220 163 L212 181 L204 181 Z" fill="#fff"/></g>
     <path class="mouth" d="M184 212 Q204 224 224 208" fill="none" stroke="#7a4330" stroke-width="4" stroke-linecap="round"/>
     <g class="arm arm-l">
@@ -1066,7 +1088,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   <div class="card">
     <div class="eggico" aria-hidden="true">🥚</div>
     <h2 id="eggTitle">Ovo secreto</h2>
-    <p class="sub" id="eggSub">Descubra a palavra secreta de 6 letras. Quem acertar ganha um prêmio enorme.</p>
+    <p class="sub" id="eggSub">Descubra a palavra secreta de 8 letras. Quem acertar ganha um prêmio enorme.</p>
     <div class="eggslots" id="eggSlots" aria-live="polite"></div>
     <form id="eggForm" novalidate>
       <input id="eggIn" maxlength="12" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="digite a palavra" aria-label="Palavra secreta">
@@ -1080,7 +1102,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 <div class="modal" id="loveModal" hidden role="dialog" aria-modal="true" aria-labelledby="loveTxt">
   <div class="card">
     <div class="heart" aria-hidden="true">💖</div>
-    <p class="lovetxt" id="loveTxt">Otavio ama Rebeca!!</p>
+    <p class="lovetxt" id="loveTxt">Otavio ama Bequinha!!</p>
     <p class="sub" id="loveSub" style="margin-bottom:18px">eu amo minha namorada mais do que água para chocolate!!!</p>
     <button class="primary" id="loveClose" type="button">Fechar</button>
   </div>
@@ -2649,34 +2671,34 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     }
   }
   function openLove(title, sub) {
-    $('loveTxt').textContent = title || 'Otavio ama Rebeca!!';
+    $('loveTxt').textContent = title || 'Otavio ama Bequinha!!';
     $('loveSub').textContent = sub === undefined ? 'eu amo minha namorada mais do que água para chocolate!!!' : sub;
     $('loveSub').hidden = !$('loveSub').textContent;
     $('loveModal').hidden = false; $('loveClose').focus(); loveRain();
   }
   function closeLove() { $('loveModal').hidden = true; }
-  // Easter egg 2: digitar "rebeca" em qualquer lugar (fora de campos de texto)
+  // Easter egg 2: digitar "bequinha" em qualquer lugar (fora de campos de texto)
   var loveTyped = '';
   document.addEventListener('keydown', function (e) {
     var tg = e.target && e.target.tagName;
     if (tg === 'INPUT' || tg === 'TEXTAREA' || e.ctrlKey || e.metaKey || e.altKey || !e.key || e.key.length !== 1) return;
-    loveTyped = (loveTyped + e.key.toLowerCase()).slice(-6);
-    if (loveTyped === 'rebeca') { loveTyped = ''; openLove('Rebeca 💖', 'digitou o nome certo... Otavio ama Rebeca!!'); }
+    loveTyped = (loveTyped + e.key.toLowerCase()).slice(-8);
+    if (loveTyped === 'bequinha') { loveTyped = ''; openLove('Bequinha 💖', 'digitou o nome certo... Otavio ama Bequinha!!'); }
   });
   // Easter eggs 3 e 4: toques seguidos no título (5x) e no selo de nível (7x)
   function multiTap(node, n, gap, fn) {
     var c = 0, t = 0;
     node.addEventListener('click', function () { var now = Date.now(); c = now - t > gap ? 1 : c + 1; t = now; if (c >= n) { c = 0; fn(); } });
   }
-  multiTap(document.querySelector('.brand'), 5, 800, function () { openLove('A maior aura do jogo é a Rebeca 💘', 'Otavio ama Rebeca!!'); });
-  multiTap($('level'), 7, 800, function () { openLove('Nível Rebeca: infinito ♾️💖', 'Otavio ama Rebeca!!'); });
+  multiTap(document.querySelector('.brand'), 5, 800, function () { openLove('A maior aura do jogo é a Bequinha 💘', 'Otavio ama Bequinha!!'); });
+  multiTap($('level'), 7, 800, function () { openLove('Nível Bequinha: infinito ♾️💖', 'Otavio ama Bequinha!!'); });
   $('loveBtn').addEventListener('click', function () { openLove(); });
   $('loveClose').addEventListener('click', closeLove);
   $('loveModal').addEventListener('click', function (e) { if (e.target === $('loveModal')) closeLove(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('loveModal').hidden) closeLove(); });
 
-  // ---------- Ovo secreto: de vez em quando aparece um ovo; quem digitar a palavra (sempre "rebeca") ganha ----------
-  var EGG_WORD = 'rebeca', EGG_TIME = 45, EGG_HINTS = 3;
+  // ---------- Ovo secreto: de vez em quando aparece um ovo; quem digitar a palavra (sempre "bequinha") ganha ----------
+  var EGG_WORD = 'bequinha', EGG_TIME = 45, EGG_HINTS = 3;
   var eggAt = Date.now() + 240000 + Math.random() * 180000, eggHideAt = 0, eggOn = false, egg = null;
   function eggNorm(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/g, ''); }
   function hideEgg() { eggOn = false; $('egg').hidden = true; eggAt = Date.now() + 300000 + Math.random() * 300000; }
@@ -2724,12 +2746,12 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     add(prize); S.eggs += 1;
     frenzyLeft = Math.max(frenzyLeft, 20);
     var c = orbCenter();
-    floater(c.x, c.y, 'REBECA ♥', 'super');
+    floater(c.x, c.y, 'BEQUINHA ♥', 'super');
     setTimeout(function () { floater(c.x, c.y + 50, '+' + fmt(prize), 'crit'); }, 250);
     spawn(c.x, c.y, 140, { speed: 8, life: 1300, hue: 330, spread: 60, size: 4, shape: 'star' });
     shock(c.x, c.y); shake(true); flash(330, 0.55); burstGuy(); fireSound('nivel', true); buzz([60, 40, 60, 40, 120]);
     loveRain(); confetti();
-    showBanner('Palavra secreta', 'REBECA 💖');
+    showBanner('Palavra secreta', 'BEQUINHA 💖');
     say('Acertou a palavra secreta. +' + fmt(prize) + ' de aura e modo Sigma x5.');
     save(); update();
   });

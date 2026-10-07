@@ -188,6 +188,28 @@ body.frenzy .bg-guy { opacity: .5; }
 }
 .gold small { position: absolute; bottom: -22px; left: 50%; translate: -50% 0; white-space: nowrap; font-family: var(--font-body); font-weight: 800; font-size: 12px; color: var(--ego); text-shadow: 0 1px 0 #000; }
 @keyframes goldPulse { 0%, 100% { scale: 1; } 50% { scale: 1.12; } }
+/* Hora premiada: tudo rosa e o boneco vira a menina */
+.bg-guy .girl-only { display: none; }
+.bg-guy.girl .girl-only { display: inline; }
+.bg-guy.girl .shades, .bg-guy.girl .glint, .bg-guy.girl .eyes { display: none; }
+.bg-guy.girl .skin { fill: #f9dfcf; }
+.bg-guy.girl .skin2 { fill: #f0cdb8; }
+.bg-guy.girl .hair { fill: #b08158; }
+.bg-guy.girl .hair-s { stroke: #b08158; }
+.bg-guy.girl .jacket { fill: #5fd6c1; stroke: #dffff8; }
+.bg-guy.girl .shirt { fill: #ffffff; }
+.bg-guy.girl .tie { fill: #ff8fc4; }
+.bg-guy.girl .pants { fill: #3bb8a3; }
+.bg-guy.girl .sleeve { stroke: #52cdb7; }
+.bg-guy.girl .mouth { stroke: #d9577a; }
+body.pink { --aura: #ff5fae; --aura-2: #ffa3d7; --bh: 330 !important; }
+body.pink .pink-banner { display: block; }
+.pink-banner {
+  display: none; width: 100%; text-align: center; padding: 8px 12px; border-radius: 12px; font-family: var(--font-display); font-size: 14px; letter-spacing: .03em;
+  color: #3a0020; background: linear-gradient(90deg, #ffb3da, #ff5fae, #ffd1ea, #ffb3da); background-size: 300% 100%; animation: flow 3s linear infinite; box-shadow: 0 0 22px -4px #ff5fae;
+}
+body.pink::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(120% 80% at 50% 30%, rgba(255, 95, 174, .28), rgba(255, 95, 174, .08) 60%, transparent); }
+@media (max-width: 879px) { .stage > .pink-banner { position: absolute; left: 0; right: 0; top: -2px; z-index: 6; font-size: 13px; padding: 6px 10px; } body.pink .level { visibility: hidden; } }
 /* Ovo secreto */
 .egg {
   position: fixed; z-index: 25; width: 76px; height: 76px; border-radius: 50% 50% 46% 46% / 58% 58% 42% 42%; border: 3px solid #fff; cursor: pointer;
@@ -802,6 +824,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
         <div class="totmult" id="totmult"></div>
       </div>
 
+      <div class="pink-banner" id="pinkBanner" aria-live="polite"></div>
       <div class="frenzy-banner" id="frenzyBanner" hidden></div>
       <div class="chall" id="chall" hidden aria-live="polite"></div>
 
@@ -836,39 +859,42 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   </g>
   <g class="grow">
   <g class="body-wrap">
-    <rect x="122" y="560" width="70" height="140" rx="10" fill="#1a1340"/>
-    <rect x="208" y="560" width="70" height="140" rx="10" fill="#1a1340"/>
-    <path d="M90 332 Q90 262 160 252 L240 252 Q310 262 310 332 L310 572 L90 572 Z" fill="#241b4c" stroke="var(--aura)" stroke-opacity=".6" stroke-width="2"/>
-    <path d="M174 252 L200 334 L226 252 Z" fill="#efeaff"/>
-    <path d="M196 266 L204 266 L209 332 L200 356 L191 332 Z" fill="var(--aura-2)"/>
+    <rect class="pants" x="122" y="560" width="70" height="140" rx="10" fill="#1a1340"/>
+    <rect class="pants" x="208" y="560" width="70" height="140" rx="10" fill="#1a1340"/>
+    <path class="jacket" d="M90 332 Q90 262 160 252 L240 252 Q310 262 310 332 L310 572 L90 572 Z" fill="#241b4c" stroke="var(--aura)" stroke-opacity=".6" stroke-width="2"/>
+    <path class="shirt" d="M174 252 L200 334 L226 252 Z" fill="#efeaff"/>
+    <path class="tie" d="M196 266 L204 266 L209 332 L200 356 L191 332 Z" fill="var(--aura-2)"/>
     <path d="M174 252 L152 300 L196 338 M226 252 L248 300 L204 338" fill="none" stroke="#120c2b" stroke-width="3" stroke-linejoin="round"/>
-    <rect x="184" y="222" width="32" height="36" rx="10" fill="#d49a72"/>
-    <ellipse cx="146" cy="172" rx="8" ry="15" fill="#dba27a"/>
-    <ellipse cx="254" cy="172" rx="8" ry="15" fill="#dba27a"/>
-    <ellipse cx="200" cy="170" rx="52" ry="62" fill="#e8b48a"/>
-    <path d="M146 166 Q144 98 200 100 Q256 98 254 166 Q238 132 200 130 Q162 132 146 166 Z" fill="#140d26"/>
-    <path d="M150 118 Q200 84 252 118" fill="none" stroke="#140d26" stroke-width="10" stroke-linecap="round"/>
-    <rect x="156" y="160" width="40" height="24" rx="7" fill="#0a0714"/>
+    <g class="girl-only"><path class="hair" d="M136 168 Q128 96 200 92 Q272 96 264 168 Q270 250 252 306 Q232 318 222 300 L178 300 Q168 318 148 306 Q130 250 136 168 Z" fill="#b08158"/></g>
+    <rect class="skin2" x="184" y="222" width="32" height="36" rx="10" fill="#d49a72"/>
+    <ellipse class="skin2" cx="146" cy="172" rx="8" ry="15" fill="#dba27a"/>
+    <ellipse class="skin2" cx="254" cy="172" rx="8" ry="15" fill="#dba27a"/>
+    <ellipse class="skin" cx="200" cy="170" rx="52" ry="62" fill="#e8b48a"/>
+    <path class="hair" d="M146 166 Q144 98 200 100 Q256 98 254 166 Q238 132 200 130 Q162 132 146 166 Z" fill="#140d26"/>
+    <path class="hair-s" d="M150 118 Q200 84 252 118" fill="none" stroke="#140d26" stroke-width="10" stroke-linecap="round"/>
+    <g class="girl-only"><path class="hair" d="M148 150 Q150 104 200 102 Q250 104 252 150 Q232 122 206 128 Q176 120 148 150 Z" fill="#b08158"/><ellipse cx="166" cy="196" rx="9" ry="5" fill="#ff9bb8" opacity=".55"/><ellipse cx="234" cy="196" rx="9" ry="5" fill="#ff9bb8" opacity=".55"/></g>
+    <g class="shades"><rect x="156" y="160" width="40" height="24" rx="7" fill="#0a0714"/>
     <rect x="204" y="160" width="40" height="24" rx="7" fill="#0a0714"/>
-    <path d="M196 168 H204" stroke="#0a0714" stroke-width="4"/>
+    <path d="M196 168 H204" stroke="#0a0714" stroke-width="4"/></g>
+    <g class="girl-only"><ellipse cx="176" cy="172" rx="21" ry="14" fill="#ffc2dc" fill-opacity=".45" stroke="#6b4a3a" stroke-width="3"/><ellipse cx="224" cy="172" rx="21" ry="14" fill="#ffc2dc" fill-opacity=".45" stroke="#6b4a3a" stroke-width="3"/><path d="M197 170 Q200 166 203 170 M155 168 L146 165 M245 168 L254 165" fill="none" stroke="#6b4a3a" stroke-width="3" stroke-linecap="round"/><circle cx="176" cy="173" r="3.2" fill="#3a2a22"/><circle cx="224" cy="173" r="3.2" fill="#3a2a22"/></g>
     <g class="glint"><path d="M162 163 L172 163 L164 181 L156 181 Z" fill="#fff"/><path d="M210 163 L220 163 L212 181 L204 181 Z" fill="#fff"/></g>
-    <path d="M184 212 Q204 224 224 208" fill="none" stroke="#7a4330" stroke-width="4" stroke-linecap="round"/>
+    <path class="mouth" d="M184 212 Q204 224 224 208" fill="none" stroke="#7a4330" stroke-width="4" stroke-linecap="round"/>
     <g class="arm arm-l">
-      <path d="M106 292 L80 420" stroke="#2e2366" stroke-width="34" stroke-linecap="round"/>
+      <path class="sleeve" d="M106 292 L80 420" stroke="#2e2366" stroke-width="34" stroke-linecap="round"/>
       <g class="fore">
-        <path d="M80 420 L58 394" stroke="#2e2366" stroke-width="28" stroke-linecap="round"/>
-        <ellipse cx="46" cy="388" rx="24" ry="9" fill="#e2a982"/>
+        <path class="sleeve" d="M80 420 L58 394" stroke="#2e2366" stroke-width="28" stroke-linecap="round"/>
+        <ellipse class="skin" cx="46" cy="388" rx="24" ry="9" fill="#e2a982"/>
         <use class="obj" href="#o-grass" x="11" y="317" width="70" height="70"/>
-        <ellipse cx="60" cy="384" rx="7" ry="5" fill="#d49a72"/>
+        <ellipse class="skin2" cx="60" cy="384" rx="7" ry="5" fill="#d49a72"/>
       </g>
     </g>
     <g class="arm arm-r">
-      <path d="M294 292 L320 420" stroke="#2e2366" stroke-width="34" stroke-linecap="round"/>
+      <path class="sleeve" d="M294 292 L320 420" stroke="#2e2366" stroke-width="34" stroke-linecap="round"/>
       <g class="fore">
-        <path d="M320 420 L342 394" stroke="#2e2366" stroke-width="28" stroke-linecap="round"/>
-        <ellipse cx="354" cy="388" rx="24" ry="9" fill="#e2a982"/>
+        <path class="sleeve" d="M320 420 L342 394" stroke="#2e2366" stroke-width="28" stroke-linecap="round"/>
+        <ellipse class="skin" cx="354" cy="388" rx="24" ry="9" fill="#e2a982"/>
         <use class="obj" href="#o-grass" x="319" y="317" width="70" height="70"/>
-        <ellipse cx="340" cy="384" rx="7" ry="5" fill="#d49a72"/>
+        <ellipse class="skin2" cx="340" cy="384" rx="7" ry="5" fill="#d49a72"/>
       </g>
     </g>
     <g class="acc chain"><path d="M164 258 Q200 312 236 258" fill="none" stroke="#ffc53d" stroke-width="4" stroke-linecap="round"/><circle cx="200" cy="302" r="9" fill="#ffc53d"/><text x="200" y="306" font-size="10" text-anchor="middle" fill="#3a2200" style="font-family: var(--font-display)">67</text></g>
@@ -1235,13 +1261,15 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   function levelIndex() { return levelOf(S.best); }
   function achCount() { var n = 0; ACH.forEach(function (a) { if (S.ach[a.id]) n++; }); return n; }
 
-  var frenzyLeft = 0;
+  var frenzyLeft = 0, pinkLeft = 0;
+  // Dias especiais (11, 12 e 24 de todo mês): aura x2 o dia inteiro
+  function specialDay() { var d = new Date().getDate(); return d === 11 || d === 12 || d === 24; }
   function multAll() { var m = 1; S.mults.forEach(function (o, i) { if (o) m *= MULTS[i].x; }); return m; }
   function egoMult() { return 1 + S.ego * 0.06; }
   function powerMult() { return Math.pow(1.25, S.eu.power || 0); }
   function levelBonus() { return 1 + 0.04 * levelIndex(); }
   function achBonus() { return 1 + 0.02 * achCount(); }
-  function globalMult() { return multAll() * egoMult() * powerMult() * levelBonus() * achBonus() * (frenzyLeft > 0 ? 5 : 1) * haterMult() * (turboLeft > 0 ? 3 : 1); }
+  function globalMult() { return multAll() * egoMult() * powerMult() * levelBonus() * achBonus() * (frenzyLeft > 0 ? 5 : 1) * haterMult() * (turboLeft > 0 ? 3 : 1) * (pinkLeft > 0 ? 3 : 1) * (specialDay() ? 2 : 1); }
   function baseRate() { var r = 0; GENS.forEach(function (g) { r += (S.gens[g.id] || 0) * g.rate; }); return r * globalMult(); }
   function clickBase() { return ((1 + S.click) * Math.pow(2, Math.floor(S.click / 10)) * globalMult()) + baseRate() * 0.025; }
   var EGO_MIN = 1e6;
@@ -1825,6 +1853,36 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     update();
   });
 
+  // ---------- Hora premiada: de vez em quando tudo fica rosa, aura x3 e o boneco vira a menina ----------
+  var PINK_DUR = 60;
+  function nextPinkDelay() { return (specialDay() ? 360000 + Math.random() * 360000 : 900000 + Math.random() * 900000); }
+  var pinkAt = Date.now() + nextPinkDelay();
+  function pinkTick(now, dt) {
+    if (pinkLeft > 0) {
+      pinkLeft = Math.max(0, pinkLeft - dt);
+      T($('pinkBanner'), 'HORA PREMIADA 💖 x3 · ' + Math.ceil(pinkLeft) + 's');
+      if (pinkLeft === 0) {
+        document.body.classList.remove('pink'); guy.classList.remove('girl');
+        pinkAt = now + nextPinkDelay(); say('A hora premiada acabou. Até a próxima.');
+      }
+      return;
+    }
+    if (document.hidden || levelIndex() < 1) { pinkAt = Math.max(pinkAt, now + 5000); return; }
+    if (now >= pinkAt) startPink();
+  }
+  function startPink() {
+    pinkLeft = PINK_DUR;
+    document.body.classList.add('pink'); guy.classList.add('girl');
+    T($('pinkBanner'), 'HORA PREMIADA 💖 x3 · ' + PINK_DUR + 's');
+    var c = orbCenter();
+    spawn(c.x, c.y, 120, { speed: 8, life: 1300, hue: 330, spread: 40, size: 4, shape: 'star' });
+    flash(330, 0.5); burstGuy(); fireSound('sigma', true); buzz([40, 30, 40]);
+    if (typeof loveRain === 'function') loveRain();
+    showBanner('Hora premiada', 'Tudo rosa · aura x3');
+    say('Hora premiada: tudo rosa e aura x3 por ' + PINK_DUR + ' segundos.');
+  }
+  if (specialDay()) setTimeout(function () { say('Hoje é um dia especial ✨ Aura x2 o dia inteiro.'); }, 1500);
+
   // ---------- Haters, chefes e desafios relâmpago ----------
   // Inimigos que andam até o 67: enquanto vivos cortam a produção; se encostarem, roubam aura e quebram o combo.
   // Força, velocidade e frequência crescem com o nível, para o jogo não ficar fácil.
@@ -2293,9 +2351,9 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     var hm = haterMult();
     T(el.rate, fmt(br) + ' aura/s' + (hm < 1 ? ' · haters -' + Math.round((1 - hm) * 100) + '%' : ''));
     T($('miniRate'), el.rate.textContent);
-    T(el.totmult, 'multiplicador total x' + fmt(globalMult()));
+    T(el.totmult, 'multiplicador total x' + fmt(globalMult()) + (specialDay() ? ' · dia especial x2 ✨' : ''));
     T(el.level, L.name);
-    var h = li === LEVELS.length - 1 ? (LITE ? 300 : (Date.now() / 60) % 360) : L.h;
+    var h = pinkLeft > 0 ? 330 : li === LEVELS.length - 1 ? (LITE ? 300 : (Date.now() / 60) % 360) : L.h;
     curHue = h;
     var hh = Math.round(h);
     if (lastBh < 0 || Math.abs(hh - lastBh) >= 8) { lastBh = hh; document.documentElement.style.setProperty('--bh', hh); }
@@ -2397,6 +2455,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     } else if (!el.banner.hidden) {
       el.banner.hidden = true; document.body.classList.remove('frenzy');
     }
+    // hora premiada
+    pinkTick(now, dt);
     // aura rara
     if (!document.hidden) {
       if (!goldOn && now >= goldAt) showGold();

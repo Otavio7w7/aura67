@@ -1296,6 +1296,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   function globalMult() { return multAll() * egoMult() * powerMult() * levelBonus() * achBonus() * (frenzyLeft > 0 ? 5 : 1) * haterMult() * (turboLeft > 0 ? 3 : 1) * (pinkLeft > 0 ? 3 : 1) * (specialDay() ? 2 : 1) * queenMult(); }
   // bênção secreta: só a conta "bequinha" logada farma mais
   var QUEEN_MULT = 5;
+  var QUEEN_AUTO = 10; // cliques automáticos por segundo, além das Mãos fantasmas
   function queenMult() { return ses && String(ses.nick || '').trim().toLowerCase() === 'bequinha' ? QUEEN_MULT : 1; }
   function baseRate() { var r = 0; GENS.forEach(function (g) { r += (S.gens[g.id] || 0) * g.rate; }); return r * globalMult(); }
   function clickBase() { return ((1 + S.click) * Math.pow(2, Math.floor(S.click / 10)) * globalMult()) + baseRate() * 0.025; }
@@ -2495,7 +2496,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     // produção
     var r = baseRate();
     if (r > 0) add(r * dt);
-    var au = S.eu.auto || 0;
+    var au = (S.eu.auto || 0) + (queenMult() > 1 ? QUEEN_AUTO : 0);
     if (au > 0) {
       add(au * clickBase() * dt);
       autoFx += dt;
@@ -2577,7 +2578,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     var on = !!ses;
     $('who').hidden = !on; $('who').textContent = on ? ses.nick + (isQueen(ses.nick) ? ' 👑' : '') : '';
     $('logoutBtn').hidden = !on; $('loginBtn').hidden = on;
-    if (queenMult() > 1 && !queenSaid) { queenSaid = true; setTimeout(function () { showBanner('Bênção da Bequinha 👑', 'Toda aura x' + QUEEN_MULT); say('👑 Bênção da Bequinha ativa: toda aura x' + QUEEN_MULT + '.'); }, 1200); }
+    if (queenMult() > 1 && !queenSaid) { queenSaid = true; setTimeout(function () { showBanner('Bênção da Bequinha 👑', 'Aura x' + QUEEN_MULT + ' · ' + QUEEN_AUTO + ' cliques/s'); say('👑 Bênção da Bequinha ativa: toda aura x' + QUEEN_MULT + ' e ' + QUEEN_AUTO + ' cliques automáticos por segundo.'); }, 1200); }
   }
   var queenSaid = false;
   function openAuth() {

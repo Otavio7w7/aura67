@@ -2580,6 +2580,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   var CFG = window.AURA_CFG || {};
   var CLOUD = !!(CFG.url && CFG.key);
   var SES_KEY = 'aura67.session.v2';
+  // dono do save local (uid): sobrevive à sessão expirada, para o login não trocar um save maior por um menor da nuvem
+  var OWN_KEY = 'aura67.owner';
   var ses = null, lastSig = '', pushing = false, pushErr = null, rankOrder = 'earned', rankTimer = 0, authMode = 'login';
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -2603,7 +2605,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   function setSession(j) {
     var um = (j.user && j.user.user_metadata) || {};
     ses = { token: j.access_token, refresh: j.refresh_token, exp: j.expires_at || (Math.floor(Date.now() / 1000) + (j.expires_in || 3600)), uid: j.user.id, nick: um.nick || (ses && ses.nick) || '' };
-    lsSet(SES_KEY, JSON.stringify(ses));
+    lsSet(SES_KEY, JSON.stringify(ses)); lsSet(OWN_KEY, ses.uid);
   }
   function dropSession() { ses = null; lsDel(SES_KEY); }
   function getToken() {
@@ -2633,10 +2635,12 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     if (!CLOUD || !ses || pushing || arenaOn) return Promise.resolve();
     var sg = sig();
     if (sg === lastSig && !keep) return Promise.resolve();
+    // fotografa o estado agora: o envio roda depois (token) e S pode ter virado a rodada zerada da Arena
+    var snap = S, lvl = levelIndex();
     var tk = (keep && ses.exp - Date.now() / 1000 > 5) ? Promise.resolve(ses.token) : getToken();
     pushing = true;
     return tk.then(function (t) {
-      return http('/rest/v1/rpc/submit_score', 'POST', { p_aura: S.aura, p_ego: S.ego, p_level: levelIndex(), p_earned: S.earned, p_save: S }, t, keep);
+      return http('/rest/v1/rpc/submit_score', 'POST', { p_aura: snap.aura, p_ego: snap.ego, p_level: lvl, p_earned: snap.earned, p_save: snap }, t, keep);
     }).then(function () { lastSig = sg; pushErr = null; }).catch(function (e) { pushErr = e; }).then(function () { pushing = false; });
   }
 
@@ -2672,6 +2676,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     var go = $('authGo'); go.disabled = true; err.textContent = '';
     var email = n.toLowerCase() + '@' + (CFG.domain || 'aura67.app');
     var signup = authMode === 'signup';
+    var owner = lsGet(OWN_KEY);
     http(signup ? '/auth/v1/signup' : '/auth/v1/token?grant_type=password', 'POST', signup ? { email: email, password: pw, data: { nick: n } } : { email: email, password: pw })
       .then(function (j) {
         if (!j || !j.access_token) throw new Error('CONFIRM');
@@ -2681,7 +2686,9 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       .then(function (rows) {
         var row = rows && rows[0];
         if (row && row.nick) { ses.nick = row.nick; lsSet(SES_KEY, JSON.stringify(ses)); }
-        if (row && row.save && typeof row.save === 'object') { applyCloud(row.save); say('Progresso carregado da nuvem. Bem-vindo, ' + ses.nick + '.'); }
+        // save local é desta mesma conta e está maior que o da nuvem: mantém o local e reenvia
+        if (row && row.save && typeof row.save === 'object' && owner === ses.uid && S.earned > (+row.save.earned || 0)) { lastSig = ''; push(); say('Progresso deste aparelho mantido. Bem-vindo, ' + ses.nick + '.'); }
+        else if (row && row.save && typeof row.save === 'object') { applyCloud(row.save); say('Progresso carregado da nuvem. Bem-vindo, ' + ses.nick + '.'); }
         else { lastSig = ''; push(); say('Conta pronta, ' + ses.nick + '. Agora é farmar.'); }
         $('authModal').hidden = true; $('fPass').value = ''; renderAcct();
       })
@@ -2691,7 +2698,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 
   $('logoutBtn').addEventListener('click', function () {
     push(true).then(function () {
-      dropSession(); noSave = true; lsDel(KEY); location.reload();
+      dropSession(); noSave = true; lsDel(KEY); lsDel(OWN_KEY); location.reload();
     });
   });
 
@@ -3097,7 +3104,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   renderArena();
 
   if (CLOUD) {
-    try { var rs = JSON.parse(lsGet(SES_KEY) || 'null'); if (rs && rs.token && rs.uid) ses = rs; } catch (e) {}
+    try { var rs = JSON.parse(lsGet(SES_KEY) || 'null'); if (rs && rs.token && rs.uid) { ses = rs; lsSet(OWN_KEY, rs.uid); } } catch (e) {}
     arLoadCache(); renderArena();
     renderAcct();
     $('saveNote').textContent = 'O progresso fica salvo neste navegador e, com conta, na nuvem.';

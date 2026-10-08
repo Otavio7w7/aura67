@@ -3045,7 +3045,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     S = arStash || load(); arStash = null; arenaOn = false; arFrozen = false; arBattle = null;
     frenzyLeft = 0; combo = 0; clearHaters(); chall = null; turboLeft = 0; lastLevel = levelIndex(); prevK = Math.floor(S.earned / 67);
     document.body.classList.remove('arena'); $('arHud').hidden = true;
-    save(); arStatus(''); update(); renderCombo();
+    save(); lastSig = ''; push(); arStatus(''); update(); renderCombo(); // garante a nuvem com o save real de volta
     var r = v.result, ico = r === 'win' ? '🏆' : r === 'draw' ? '🤝' : '💀';
     T($('arResIco'), ico);
     T($('arResTitle'), r === 'win' ? 'Vitória!' : r === 'draw' ? 'Empate' : 'Derrota');

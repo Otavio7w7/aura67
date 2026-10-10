@@ -1853,6 +1853,46 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     });
   });
 
+  // ---------- Anti auto click ----------
+  // Só filtra toques/cliques de entrada. A produção automática (Mãos fantasmas,
+  // bênção da Bequinha, Mãos de gladiador) roda no tick e não passa por aqui.
+  var AC_MAX = 20;        // toques aceitos por segundo (humano rápido fica em 8 a 15)
+  var AC_N = 40;          // intervalos analisados para regularidade
+  var AC_CV = 0.04;       // abaixo disso o ritmo é regular demais para um dedo humano
+  var AC_FAST = 250;      // só analisa regularidade abaixo de 250 ms (4+ toques/s)
+  var AC_PAUSE = 5000;    // pausa nos toques após detectar robô
+  var acHits = [], acGaps = [], acLast = 0, acUntil = 0, acWarnAt = 0;
+  function acWarn(t) {
+    var now = performance.now();
+    if (now - acWarnAt < 4000) return;
+    acWarnAt = now; say(t); buzz(40);
+  }
+  function acOk(e) {
+    if (e && e.isTrusted === false) { acWarn('🤖 Clique falso bloqueado. Aqui só vale dedo.'); return false; }
+    var now = performance.now();
+    if (now < acUntil) { acWarn('🤖 Auto clique detectado. Toques pausados por uns segundos.'); return false; }
+    if (acLast) {
+      var g = now - acLast;
+      if (g > 1000) acGaps.length = 0; else { acGaps.push(g); if (acGaps.length > AC_N) acGaps.shift(); }
+    }
+    acLast = now;
+    if (acGaps.length >= AC_N) {
+      var m = 0, v = 0, i;
+      for (i = 0; i < acGaps.length; i++) m += acGaps[i];
+      m /= acGaps.length;
+      for (i = 0; i < acGaps.length; i++) v += (acGaps[i] - m) * (acGaps[i] - m);
+      if (m < AC_FAST && Math.sqrt(v / acGaps.length) / m < AC_CV) {
+        acUntil = now + AC_PAUSE; acGaps.length = 0; acHits.length = 0; combo = 0; renderCombo();
+        acWarnAt = 0; acWarn('🤖 Auto clique detectado: ritmo perfeito demais. Toques pausados por 5 s.');
+        return false;
+      }
+    }
+    while (acHits.length && now - acHits[0] > 1000) acHits.shift();
+    if (acHits.length >= AC_MAX) { acWarn('🤖 Rápido demais para um humano. Os toques extras não contam.'); return false; }
+    acHits.push(now);
+    return true;
+  }
+
   // ---------- Clique, combo, crítico ----------
   var combo = 0, lastClick = 0, lastFx = 0, lastBump = 0;
   function farm(x, y) {
@@ -1900,10 +1940,12 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     renderCounter(); renderCombo();
     if (!LITE && S.best < FINAL && now - lastBump > 120) { lastBump = now; el.aura.classList.remove('bump'); void el.aura.offsetWidth; el.aura.classList.add('bump'); }
   }
-  el.orb.addEventListener('pointerdown', function (e) { farm(e.clientX, e.clientY); });
+  el.orb.addEventListener('pointerdown', function (e) { if (acOk(e)) farm(e.clientX, e.clientY); });
   el.orb.addEventListener('click', function (e) {
-    if (e.detail === 0) { var c = orbCenter(); farm(c.x, c.y - c.y * 0.0); }
+    if (e.detail === 0 && acOk(e)) { var c = orbCenter(); farm(c.x, c.y - c.y * 0.0); }
   });
+  // segurar Enter no orbe repetiria o clique sozinho
+  el.orb.addEventListener('keydown', function (e) { if (e.repeat && (e.key === 'Enter' || e.key === ' ')) e.preventDefault(); });
   var lastVi = '';
   function renderCombo() {
     var on = combo >= 3;
@@ -2011,7 +2053,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     b.querySelector('small').textContent = name;
     var h = { el: b, k: k, boss: boss, name: name, x: x, y: y, hp: hp, max: hp, sp: sp, ph: Math.random() * 6.28, t: 0, size: size, bar: b.querySelector('.hp i') };
     b.style.transform = 'translate(' + x + 'px,' + y + 'px)';
-    b.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); hitHater(h, e.clientX, e.clientY, 1); });
+    b.addEventListener('pointerdown', function (e) { e.preventDefault(); e.stopPropagation(); if (acOk(e)) hitHater(h, e.clientX, e.clientY, 1); });
     hatersEl.appendChild(b);
     haters.push(h);
     if (boss) {

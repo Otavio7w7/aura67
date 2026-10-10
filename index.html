@@ -1250,6 +1250,14 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     { min: 6.7e56, name: 'Quase infinita', h: 255 }, { min: 6.7e60, name: 'AURA INFINITA 67', h: 265 }
   ];
   var FINAL = 6.7e60;
+  // títulos fofos que só a conta "bequinha" vê (mesma ordem de LEVELS)
+  var QUEEN_LEVELS = ['Fofurinha', 'Florzinha', 'Aura de pelúcia', 'Docinho', 'Moranguinho', 'Fofura demais',
+    'Princesinha', 'Chefinha', 'Lenda fofa', 'Estrelinha cósmica', 'Charme + Ego', 'Mozão',
+    'Rainha do Rizz', 'Fada da aura', 'Anjinha', 'Unicórnio da aura', 'Fofura universal', 'Princesa intergaláctica',
+    'Coração derretendo', 'Amor + Ego supremos', 'Bequinha além do 67', 'Amor quase infinito', 'BEQUINHA INFINITA 💖'];
+  function isBeq(n) { return String(n || '').trim().toLowerCase() === 'bequinha'; }
+  function lvName(i, nick) { i = Math.max(0, Math.min(i || 0, LEVELS.length - 1)); return isBeq(nick) && QUEEN_LEVELS[i] ? QUEEN_LEVELS[i] : LEVELS[i].name; }
+  function myLv(i) { return lvName(i, ses && ses.nick); }
 
   var ACH = [
     { id: 'first', n: 'Primeira aura', t: function (s) { return s.clicks >= 1; } },
@@ -2234,8 +2242,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     })(i);
     confetti();
     for (var j = 0; j < 4; j++) bolt(c.x, c.y, Math.random() * W, Math.random() * Ht, H);
-    showBanner('Novo nível', LEVELS[li].name);
-    say('Novo nível: ' + LEVELS[li].name + '. Bônus de nível x' + fmt(levelBonus()) + '.');
+    showBanner('Novo nível', myLv(li));
+    say('Novo nível: ' + myLv(li) + '. Bônus de nível x' + fmt(levelBonus()) + '.');
   }
 
   // ---------- Ego ----------
@@ -2489,7 +2497,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     T(el.rate, fmt(br) + ' aura/s' + (hm < 1 ? ' · haters -' + Math.round((1 - hm) * 100) + '%' : ''));
     T($('miniRate'), el.rate.textContent);
     T(el.totmult, 'multiplicador total x' + fmt(globalMult()) + (specialDay() ? ' · dia especial x2 ✨' : ''));
-    T(el.level, L.name);
+    T(el.level, myLv(li));
     var h = pinkLeft > 0 ? 330 : li === LEVELS.length - 1 ? (LITE ? 300 : (Date.now() / 60) % 360) : L.h;
     curHue = h;
     var hh = Math.round(h);
@@ -2507,7 +2515,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       if (L.min === 0) p = Math.max(0, Math.min(1, S.best / N.min));
       el.fill.style.width = (p * 100).toFixed(1) + '%';
       el.bar.setAttribute('aria-valuenow', Math.round(p * 100));
-      T(el.nextname, 'Próximo: ' + N.name);
+      T(el.nextname, 'Próximo: ' + myLv(li + 1));
       T(el.nextneed, fmt(S.best) + ' / ' + fmt(N.min));
     } else {
       el.fill.style.width = '100%';
@@ -2760,7 +2768,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
         if (i < 3) tr.classList.add('top' + (i + 1));
         var queen = isQueen(r.nick);
         if (queen) tr.classList.add('queen');
-        var cells = [i < 3 ? ['🥇', '🥈', '🥉'][i] : String(i + 1), r.nick + (queen ? ' 👑' : '') + (r.gladiador ? ' ⚔️' : ''), fmt(r.earned), fmt(r.ego), LEVELS[Math.min(r.level, LEVELS.length - 1)].name];
+        var cells = [i < 3 ? ['🥇', '🥈', '🥉'][i] : String(i + 1), r.nick + (queen ? ' 👑' : '') + (r.gladiador ? ' ⚔️' : ''), fmt(r.earned), fmt(r.ego), lvName(r.level, r.nick)];
         cells.forEach(function (t, k) {
           var td = document.createElement('td'); td.textContent = t;
           if (k === 3) td.className = 'egoc';
@@ -2976,7 +2984,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       li.className = 'item arit';
       li.innerHTML = '<div class="ico" aria-hidden="true">⚔️</div><div class="info"><strong></strong><span class="meta"></span></div><button class="buy ar-b" type="button"><span class="q">Arena</span><span class="c"></span></button>';
       li.querySelector('strong').textContent = p.nick + (isQueen(p.nick) ? ' 👑' : '');
-      T(li.querySelector('.meta'), LEVELS[Math.min(p.level || 0, LEVELS.length - 1)].name);
+      T(li.querySelector('.meta'), lvName(p.level, p.nick));
       var b = li.querySelector('.buy');
       T(b.querySelector('.c'), p.busy ? 'Ocupado' : 'Desafiar');
       b.disabled = !!p.busy || !!arBattle;

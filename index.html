@@ -218,6 +218,11 @@ body.pink::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-
   background: radial-gradient(circle at 38% 30%, #fff, #ffe3f3 45%, #ff9bd6); font-size: 38px; display: grid; place-items: center; touch-action: manipulation;
   box-shadow: 0 0 26px 8px rgba(255, 155, 214, .6), 0 0 70px 20px rgba(139, 92, 255, .35); animation: eggWiggle 1s ease-in-out infinite, goldDrift 5s ease-in-out infinite alternate;
 }
+.egg.meme { background: radial-gradient(circle at 38% 30%, #fff, #fff6c2 45%, #ffcf3a); box-shadow: 0 0 26px 8px rgba(255, 207, 58, .6), 0 0 70px 20px rgba(80, 220, 140, .35); }
+.egg.meme small { color: #ffd84a; }
+#eggModal.meme .eggslots b { color: #ffd84a; }
+#eggModal.meme .eggslots b.on { border-color: #ffd84a; box-shadow: 0 0 12px -2px #ffd84a; }
+#eggModal.love .card { border-color: #ff9bd6; box-shadow: 0 30px 80px -20px #000, 0 0 60px -10px #ff6fb5; }
 .egg small { position: absolute; bottom: -22px; left: 50%; translate: -50% 0; white-space: nowrap; font-weight: 800; font-size: 12px; color: #ff9bd6; text-shadow: 0 1px 0 #000; }
 @keyframes eggWiggle { 0%, 100% { rotate: -10deg; } 50% { rotate: 10deg; } }
 #eggModal .card { text-align: center; }
@@ -2879,15 +2884,31 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   $('loveModal').addEventListener('click', function (e) { if (e.target === $('loveModal')) closeLove(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('loveModal').hidden) closeLove(); });
 
-  // ---------- Ovo secreto: de vez em quando aparece um ovo; quem digitar a palavra (sempre "bequinha") ganha ----------
-  var EGG_WORD = 'bequinha', EGG_TIME = 45, EGG_HINTS = 3;
+  // ---------- Ovo secreto: de vez em quando aparece um ovo; quem digitar a palavra ganha ----------
+  // Dois tipos, sorteados: o ovo rosa (palavras da Bequinha) e o ovo meme (com dica escrita, pra todo mundo adivinhar).
+  var EGG_LOVE = ['bequinha', 'mozao', 'princesa', 'amorzinho', 'docinho'];
+  var EGG_MEME = [
+    { w: 'sigma', d: 'o oposto do beta' },
+    { w: 'cringe', d: 'vergonha alheia em inglês' },
+    { w: 'skibidi', d: 'o vaso sanitário que canta' },
+    { w: 'aura', d: 'o que você farma aqui' }
+  ];
+  var EGG_WORD = 'bequinha', EGG_TYPE = 'love', EGG_CLUE = '', EGG_TIME = 45, EGG_HINTS = 3;
+  function pickEgg() {
+    if (Math.random() < 0.5) { EGG_TYPE = 'love'; EGG_WORD = EGG_LOVE[Math.floor(Math.random() * EGG_LOVE.length)]; EGG_CLUE = 'tem a ver com amor 💗'; }
+    else { var m = EGG_MEME[Math.floor(Math.random() * EGG_MEME.length)]; EGG_TYPE = 'meme'; EGG_WORD = m.w; EGG_CLUE = m.d; }
+  }
   var eggAt = Date.now() + 240000 + Math.random() * 180000, eggHideAt = 0, eggOn = false, egg = null;
   function eggNorm(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/g, ''); }
   function hideEgg() { eggOn = false; $('egg').hidden = true; eggAt = Date.now() + (300000 + Math.random() * 300000) * (beqNormal() ? 0.5 : 1); }
   function showEgg() {
     eggOn = true; eggHideAt = Date.now() + 12000;
-    var b = $('egg'); b.style.left = (8 + Math.random() * 66) + '%'; b.style.top = (26 + Math.random() * 40) + '%'; b.hidden = false;
-    say('Um ovo secreto apareceu. Toque nele antes que suma.');
+    pickEgg();
+    var b = $('egg'); b.className = 'egg ' + EGG_TYPE;
+    b.firstChild.nodeValue = EGG_TYPE === 'love' ? '💗' : '😂';
+    T(b.querySelector('small'), EGG_TYPE === 'love' ? 'OVO DO AMOR' : 'OVO MEME');
+    b.style.left = (8 + Math.random() * 66) + '%'; b.style.top = (26 + Math.random() * 40) + '%'; b.hidden = false;
+    say(EGG_TYPE === 'love' ? 'Um ovo rosa apareceu 💗 Toque nele antes que suma.' : 'Um ovo meme apareceu 😂 Toque nele antes que suma.');
   }
   function eggSlots() {
     var box = $('eggSlots'); box.textContent = '';
@@ -2895,7 +2916,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       var c = document.createElement('b'), on = egg && egg.shown[i];
       c.textContent = on ? EGG_WORD[i] : '_'; if (on) c.className = 'on'; box.appendChild(c);
     }
-    var left = EGG_HINTS - (egg ? egg.hints : 0);
+    var left = Math.min(EGG_HINTS, EGG_WORD.length - 2) - (egg ? egg.hints : 0);
     $('eggHint').disabled = left <= 0;
     $('eggHint').textContent = left > 0 ? 'Dica de letra (' + left + ')' : 'Sem dicas';
   }
@@ -2905,11 +2926,15 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     hideEgg();
     egg = { left: EGG_TIME, hints: 0, shown: EGG_WORD.split('').map(function () { return false; }) };
     $('eggErr').textContent = ''; $('eggIn').value = ''; eggSlots();
+    $('eggModal').className = 'modal ' + EGG_TYPE;
+    T($('eggModal').querySelector('.eggico'), EGG_TYPE === 'love' ? '💗' : '😂');
+    T($('eggTitle'), EGG_TYPE === 'love' ? 'Ovo do amor' : 'Ovo meme');
+    T($('eggSub'), 'Descubra a palavra de ' + EGG_WORD.length + ' letras. Dica: ' + EGG_CLUE + '. Quem acertar ganha um prêmio enorme.');
     T($('eggTime'), EGG_TIME + 's · prêmio ' + fmt(eggPrize()));
     $('eggModal').hidden = false; setTimeout(function () { $('eggIn').focus(); }, 40);
   });
   $('eggHint').addEventListener('click', function () {
-    if (!egg || egg.hints >= EGG_HINTS) return;
+    if (!egg || egg.hints >= Math.min(EGG_HINTS, EGG_WORD.length - 2)) return;
     var idx = []; egg.shown.forEach(function (v, i) { if (!v) idx.push(i); });
     if (idx.length <= 1) return;
     egg.shown[idx[Math.floor(Math.random() * idx.length)]] = true; egg.hints += 1; eggSlots();
@@ -2928,12 +2953,13 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     add(prize); S.eggs += 1;
     frenzyLeft = Math.max(frenzyLeft, 20);
     var c = orbCenter();
-    floater(c.x, c.y, 'BEQUINHA ♥', 'super');
+    var love = EGG_TYPE === 'love', big = EGG_WORD.toUpperCase();
+    floater(c.x, c.y, love ? big + ' ♥' : big + ' 😂', 'super');
     setTimeout(function () { floater(c.x, c.y + 50, '+' + fmt(prize), 'crit'); }, 250);
-    spawn(c.x, c.y, 140, { speed: 8, life: 1300, hue: 330, spread: 60, size: 4, shape: 'star' });
-    shock(c.x, c.y); shake(true); flash(330, 0.55); burstGuy(); fireSound('nivel', true); buzz([60, 40, 60, 40, 120]);
-    loveRain(); confetti();
-    showBanner('Palavra secreta', 'BEQUINHA 💖');
+    spawn(c.x, c.y, 140, { speed: 8, life: 1300, hue: love ? 330 : 48, spread: 60, size: 4, shape: 'star' });
+    shock(c.x, c.y); shake(true); flash(love ? 330 : 48, 0.55); burstGuy(); fireSound('nivel', true); buzz([60, 40, 60, 40, 120]);
+    if (love) loveRain(); confetti();
+    showBanner(love ? 'Palavra do amor' : 'Palavra meme', big + (love ? ' 💖' : ' 😂'));
     say('Acertou a palavra secreta. +' + fmt(prize) + ' de aura e modo Sigma x5.');
     save(); update();
   });

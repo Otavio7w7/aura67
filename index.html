@@ -1256,6 +1256,10 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     'Rainha do Rizz', 'Fada da aura', 'Anjinha', 'Unicórnio da aura', 'Fofura universal', 'Princesa intergaláctica',
     'Coração derretendo', 'Amor + Ego supremos', 'Bequinha além do 67', 'Amor quase infinito', 'BEQUINHA INFINITA 💖'];
   function isBeq(n) { return String(n || '').trim().toLowerCase() === 'bequinha'; }
+  // Mimos da conta "bequinha" no jogo normal (fora da Arena): aura rara e ovo mais frequentes, ovo com prêmio maior, visual rosa e recadinhos
+  function beqNormal() { return !arenaOn && typeof ses !== 'undefined' && !!ses && isBeq(ses.nick); }
+  var BEQ_MSGS = ['Oi, Bequinha 💖 sua aura é a mais bonita do jogo.', 'Bequinha, você é a fofura oficial do 67 💕', 'Lembrete do dia: alguém te ama muito 💘',
+    'A aura mais linda do servidor acabou de clicar 💗', 'Bequinha, o 67 brilha mais quando você joga ✨', 'Moranguinho detectado 🍓 aura em alta.'];
   // Arena: a conta "bequinha" tem escudo (haters roubam e atrapalham menos, combo não quebra) e mais ataque (crítico e golpe nos haters)
   var BEQ_SHIELD = 0.5, BEQ_CRIT = 0.12, BEQ_HIT = 2;
   function beqArena() { return arenaOn && !!ses && isBeq(ses.nick); }
@@ -1776,7 +1780,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   }
 
   function say(t) { el.ticker.textContent = t; }
-  function randomMsg() { say(MSGS[Math.floor(Math.random() * MSGS.length)]); }
+  function randomMsg() { var l = beqNormal() && Math.random() < 0.35 ? BEQ_MSGS : MSGS; say(l[Math.floor(Math.random() * l.length)]); }
 
   function buyFx(btn) {
     var r = btn.getBoundingClientRect();
@@ -1932,7 +1936,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       spawn(x, y, Math.round(n * 0.6), Object.assign({ shape: 'streak' }, po));
       spawn(x, y, Math.round(n * 0.4), Object.assign({ shape: 'star' }, po));
     } else {
-      spawn(x, y, Math.round(n), { speed: 4.5, life: 700, size: 3 });
+      if (beqNormal()) { spawn(x, y, Math.round(n), { speed: 4.5, life: 700, size: 3, hue: 330 + Math.random() * 20, shape: 'star' }); if (Math.random() < 0.18) floater(x + (Math.random() - 0.5) * 60, y - 40, '💖', ''); }
+      else spawn(x, y, Math.round(n), { speed: 4.5, life: 700, size: 3 });
     }
     var fxOk = sup || crit || now - lastFx > 90;
     if (fxOk) {
@@ -1974,7 +1979,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 
   // ---------- Aura rara e modo Sigma ----------
   var goldAt = Date.now() + 120000, goldHideAt = 0, goldOn = false;
-  function nextGoldDelay() { return Math.max(45000, (120000 + Math.random() * 120000) * (1 - 0.07 * (S.eu.gold || 0))); }
+  function nextGoldDelay() { var d = Math.max(45000, (120000 + Math.random() * 120000) * (1 - 0.07 * (S.eu.gold || 0))); return beqNormal() ? Math.max(30000, d * 0.5) : d; }
   function showGold() {
     goldOn = true; goldHideAt = Date.now() + 8000;
     el.gold.style.left = (8 + Math.random() * 68) + '%';
@@ -2536,7 +2541,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     T($('miniRate'), el.rate.textContent);
     T(el.totmult, 'multiplicador total x' + fmt(globalMult()) + (specialDay() ? ' · dia especial x2 ✨' : ''));
     T(el.level, myLv(li));
-    var h = pinkLeft > 0 ? 330 : li === LEVELS.length - 1 ? (LITE ? 300 : (Date.now() / 60) % 360) : L.h;
+    var h = (pinkLeft > 0 || beqNormal()) ? 330 : li === LEVELS.length - 1 ? (LITE ? 300 : (Date.now() / 60) % 360) : L.h;
     curHue = h;
     var hh = Math.round(h);
     if (lastBh < 0 || Math.abs(hh - lastBh) >= 8) { lastBh = hh; document.documentElement.style.setProperty('--bh', hh); }
@@ -2875,7 +2880,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   var EGG_WORD = 'bequinha', EGG_TIME = 45, EGG_HINTS = 3;
   var eggAt = Date.now() + 240000 + Math.random() * 180000, eggHideAt = 0, eggOn = false, egg = null;
   function eggNorm(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/g, ''); }
-  function hideEgg() { eggOn = false; $('egg').hidden = true; eggAt = Date.now() + 300000 + Math.random() * 300000; }
+  function hideEgg() { eggOn = false; $('egg').hidden = true; eggAt = Date.now() + (300000 + Math.random() * 300000) * (beqNormal() ? 0.5 : 1); }
   function showEgg() {
     eggOn = true; eggHideAt = Date.now() + 12000;
     var b = $('egg'); b.style.left = (8 + Math.random() * 66) + '%'; b.style.top = (26 + Math.random() * 40) + '%'; b.hidden = false;
@@ -2891,7 +2896,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     $('eggHint').disabled = left <= 0;
     $('eggHint').textContent = left > 0 ? 'Dica de letra (' + left + ')' : 'Sem dicas';
   }
-  function eggPrize() { return Math.max(baseRate() * 300, clickBase() * 600, S.run * 0.3, 6700) * (1 - 0.2 * egg.hints); }
+  function eggPrize() { return Math.max(baseRate() * 300, clickBase() * 600, S.run * 0.3, 6700) * (1 - 0.2 * egg.hints) * (beqNormal() ? 3 : 1); }
   function closeEgg() { $('eggModal').hidden = true; egg = null; }
   $('egg').addEventListener('click', function () {
     hideEgg();

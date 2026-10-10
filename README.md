@@ -60,6 +60,8 @@ Como funciona:
 - Aba **Arena** lista quem está online (sinal a cada 5 s). Desafio vale 35 s; o outro aceita ou recusa num pop-up.
 - 5 minutos, os dois começam do zero. Ego, Loja do Ego, bônus de nível/conquistas, dia especial, hora premiada, ovo secreto,
   bênção da Bequinha e itens da Arena **não valem** lá dentro. Aura rara, haters e desafios relâmpago continuam.
+- Exceção da conta `bequinha` na Arena: escudo (haters roubam metade, atrapalham menos e não quebram o combo) e ataque
+  (+12% de chance de crítico e golpe dobrado nos haters). O teto de placar dela no servidor é 5x (`arena_tick`).
 - O save normal fica guardado e volta igual no fim (não é salvo nem enviado durante a batalha).
 - Vence quem tiver mais aura farmada; o servidor decide pelo relógio dele. 20 s sem sinal (app fechado ou em segundo plano) = W.O.
 - A moeda só é dada pelo servidor: máximo 3 por dia e 1 por dia contra o mesmo jogador. Placar acima do teto possível é ignorado.

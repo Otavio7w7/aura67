@@ -178,7 +178,9 @@ begin
   if bt.status = 'active' then
     el := extract(epoch from now() - bt.started_at);
     -- placar impossível é ignorado (fica o último válido)
-    ok := p_score is not null and p_score >= 0 and p_score <= public.arena_cap(el + 3);
+    -- a conta bequinha tem escudo e ataque na Arena (placar maior), então o teto dela é 5x
+    ok := p_score is not null and p_score >= 0 and p_score <= public.arena_cap(el + 3)
+          * (case when exists (select 1 from public.players where id = me and lower(nick) = 'bequinha') then 5 else 1 end);
     if bt.a = me then
       update public.battles set a_seen = now(), a_score = case when ok then greatest(a_score, p_score) else a_score end where id = p_id;
     else

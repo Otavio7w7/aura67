@@ -1324,7 +1324,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 
   function zeros() { var a = []; for (var i = 0; i < MULTS.length; i++) a.push(0); return a; }
   function fresh() {
-    return { aura: 0, earned: 0, run: 0, best: 0, clicks: 0, ego: 0, egoSpent: 0, inflations: 0, click: 0, crits: 0, bestCombo: 0, golds: 0, haters: 0, bosses: 0, chall: 0, eggs: 0, gens: {}, mults: zeros(), eu: {}, ach: {} };
+    return { aura: 0, earned: 0, run: 0, best: 0, clicks: 0, ego: 0, egoSpent: 0, inflations: 0, click: 0, crits: 0, bestCombo: 0, golds: 0, haters: 0, bosses: 0, chall: 0, eggs: 0, gens: {}, mults: zeros(), eu: {}, ach: {}, gifts: {} };
   }
   function load(o0) {
     var s = fresh();
@@ -1339,6 +1339,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
         if (Array.isArray(o.mults)) s.mults = s.mults.map(function (_, i) { return o.mults[i] ? 1 : 0; });
         if (o.eu && typeof o.eu === 'object') EUP.forEach(function (u) { if (typeof o.eu[u.id] === 'number') s.eu[u.id] = Math.min(u.max, o.eu[u.id]); });
         if (o.ach && typeof o.ach === 'object') s.ach = o.ach;
+        if (o.gifts && typeof o.gifts === 'object') s.gifts = o.gifts;
       }
     } catch (e) {}
     return s;
@@ -2304,7 +2305,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     }
     clearTimeout(resetTimer); resetArmed = false;
     el.reset.classList.remove('armed'); el.reset.textContent = 'Zerar tudo';
-    S = fresh(); frenzyLeft = 0; combo = 0; clearHaters(); chall = null; turboLeft = 0; lastLevel = 0; prevK = 0;
+    var gifts = S.gifts; S = fresh(); S.gifts = gifts || {}; frenzyLeft = 0; combo = 0; clearHaters(); chall = null; turboLeft = 0; lastLevel = 0; prevK = 0;
     save(); say('Começando do zero. Aura de NPC de novo.'); update(); if (CLOUD && ses) { lastSig = ''; push(true); }
   });
 
@@ -2742,6 +2743,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
         if (row && row.save && typeof row.save === 'object') { applyCloud(row.save); say('Progresso carregado da nuvem. Bem-vindo, ' + ses.nick + '.'); }
         else { lastSig = ''; push(); say('Conta pronta, ' + ses.nick + '. Agora é farmar.'); }
         $('authModal').hidden = true; $('fPass').value = ''; renderAcct();
+        setTimeout(giveGift, 1500);
       })
       .catch(function (e) { if (ses && !ses.nick) dropSession(); err.textContent = niceErr(e); })
       .then(function () { go.disabled = false; });
@@ -3155,6 +3157,19 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   tabBtns.forEach(function (b) { if (b.getAttribute('data-tab') === 'arena') b.addEventListener('click', function () { arStatus(''); arListAt = 0; renderArena(); }); });
   renderArena();
 
+  // ---------- Presente para todos: +1 milhão de aura, uma vez por save (só depois de sincronizar com a nuvem) ----------
+  var GIFT_ID = 'presente-1m-2026-10-10', GIFT_AURA = 1e6, GIFT_UNTIL = new Date(2026, 9, 18).getTime();
+  function giveGift() {
+    if (arenaOn || Date.now() >= GIFT_UNTIL) return;
+    if (!S.gifts) S.gifts = {};
+    if (S.gifts[GIFT_ID]) return;
+    S.gifts[GIFT_ID] = 1;
+    add(GIFT_AURA);
+    save(); update();
+    setTimeout(function () { showBanner('Presente para todos 🎁', '+' + fmt(GIFT_AURA) + ' de aura'); confetti(); say('🎁 Presente para todos os jogadores: +' + fmt(GIFT_AURA) + ' de aura.'); }, 800);
+    if (CLOUD && ses) { lastSig = ''; push(); }
+  }
+
   if (CLOUD) {
     try { var rs = JSON.parse(lsGet(SES_KEY) || 'null'); if (rs && rs.token && rs.uid) ses = rs; } catch (e) {}
     arLoadCache(); renderArena();
@@ -3170,12 +3185,13 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
           if (!row) { dropSession(); renderAcct(); openAuth(); return; }
           if (row.save && typeof row.save === 'object' && (row.save.earned || 0) > S.earned) applyCloud(row.save);
           lastSig = '';
-        }).catch(function (e) { if (e && e.status === 401) { dropSession(); renderAcct(); openAuth(); } });
-    }
+          giveGift();
+        }).catch(function (e) { if (e && e.status === 401) { dropSession(); renderAcct(); openAuth(); } else giveGift(); });
+    } else giveGift();
     setInterval(push, 20000);
     document.addEventListener('visibilitychange', function () { if (document.hidden) push(true); });
     window.addEventListener('pagehide', function () { push(true); });
-  }
+  } else giveGift();
 
   var mini = $('mini');
   if ('IntersectionObserver' in window) {

@@ -1370,7 +1370,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   function baseRate() { var r = 0; GENS.forEach(function (g) { r += (S.gens[g.id] || 0) * g.rate; }); return r * globalMult(); }
   function clickBase() { return ((1 + S.click) * Math.pow(2, Math.floor(S.click / 10)) * globalMult()) + baseRate() * 0.025; }
   var EGO_MIN = 1e6;
-  function egoGain() { return Math.floor(Math.pow(S.run / EGO_MIN, 0.16) * (1 + 0.1 * (S.eu.rizz || 0))); }
+  var QUEEN_EGO = 2; // a conta "bequinha" ganha o dobro de ego ao inflar
+  function egoGain() { return Math.floor(Math.pow(S.run / EGO_MIN, 0.16) * (1 + 0.1 * (S.eu.rizz || 0)) * (ses && isBeq(ses.nick) ? QUEEN_EGO : 1)); }
   function egoAvail() { return Math.max(0, S.ego - S.egoSpent); }
   function poseCost() { return 30 * Math.pow(1.6, S.click); }
   function euCost(u) { return Math.floor(u.c * Math.pow(u.g, S.eu[u.id] || 0)); }

@@ -1256,6 +1256,9 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     'Rainha do Rizz', 'Fada da aura', 'Anjinha', 'Unicórnio da aura', 'Fofura universal', 'Princesa intergaláctica',
     'Coração derretendo', 'Amor + Ego supremos', 'Bequinha além do 67', 'Amor quase infinito', 'BEQUINHA INFINITA 💖'];
   function isBeq(n) { return String(n || '').trim().toLowerCase() === 'bequinha'; }
+  // Arena: a conta "bequinha" tem escudo (haters roubam e atrapalham menos, combo não quebra) e mais ataque (crítico e golpe nos haters)
+  var BEQ_SHIELD = 0.5, BEQ_CRIT = 0.12, BEQ_HIT = 2;
+  function beqArena() { return arenaOn && !!ses && isBeq(ses.nick); }
   function lvName(i, nick) { i = Math.max(0, Math.min(i || 0, LEVELS.length - 1)); return isBeq(nick) && QUEEN_LEVELS[i] ? QUEEN_LEVELS[i] : LEVELS[i].name; }
   function myLv(i) { return lvName(i, ses && ses.nick); }
 
@@ -1912,7 +1915,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     if (chall) { if (chall.type === 'clicks') chall.n += 1; else if (chall.type === 'combo' && combo > chall.n) chall.n = combo; }
     var cm = 1 + Math.min(combo, 100) * 0.01;
     var v = clickBase() * cm, crit = false, sup = false;
-    var cc = Math.min(0.03 + 0.02 * (S.eu.crit || 0), 0.35);
+    var cc = Math.min(0.03 + 0.02 * (S.eu.crit || 0), 0.35) + (beqArena() ? BEQ_CRIT : 0);
     if (Math.random() < cc) {
       crit = true; S.crits += 1;
       if (Math.random() < 0.07) { sup = true; v *= 67; } else { v *= 5; }
@@ -2034,7 +2037,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   var BNAMES = ['Hater supremo', 'Rei do cringe', 'Fofoqueiro-mor', 'Chefão do ranço'];
   function haterMult() {
     var m = 1;
-    for (var i = 0; i < haters.length; i++) m *= haters[i].boss ? 0.6 : 0.9;
+    var sh = beqArena();
+    for (var i = 0; i < haters.length; i++) m *= haters[i].boss ? (sh ? 0.8 : 0.6) : (sh ? 0.95 : 0.9);
     return Math.max(m, 0.3);
   }
   function pickKind(li) {
@@ -2102,19 +2106,22 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   function haterSteal(h) {
     var li = levelIndex();
     var pct = h.boss ? Math.min(0.1 + li * 0.006, 0.25) : Math.min(0.03 + li * 0.004, 0.12) * (h.k === 'tank' ? 1.5 : 1);
+    var shield = beqArena();
+    if (shield) pct *= BEQ_SHIELD;
     var st = S.aura * pct;
     S.aura -= st;
     removeHater(h);
-    combo = 0; renderCombo();
+    if (!shield) { combo = 0; renderCombo(); }
     floater(h.x, h.y, '-' + fmt(st) + ' roubado', 'bad');
     spawn(h.x, h.y, h.boss ? 60 : 22, { hue: 355, spread: 30, speed: h.boss ? 7 : 4 });
     shake(h.boss); flash(355, h.boss ? 0.5 : 0.25); buzz(h.boss ? [120, 50, 120] : 70);
     if (h.boss) fireSound('roubo', true); else fireSound('roubo');
-    say(h.name + ' roubou ' + Math.round(pct * 100) + '% da sua aura e quebrou o combo.');
+    say(h.name + ' roubou ' + Math.round(pct * 100) + '% da sua aura' + (shield ? '. O escudo da Bequinha 🛡️ segurou o resto e o combo.' : ' e quebrou o combo.'));
     update();
   }
   function hitHater(h, x, y, dmg) {
     if (h.dead) return;
+    if (beqArena()) dmg *= BEQ_HIT;
     h.hp -= dmg;
     h.el.classList.remove('hit'); void h.el.offsetWidth; h.el.classList.add('hit');
     spawn(x, y, h.boss ? 12 : 8, { hue: 355, spread: 60, speed: 3.5, life: 450 });
@@ -3065,6 +3072,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     document.body.classList.add('arena'); closeSheet();
     $('arHud').hidden = false; arStatus('Batalha contra ' + v.opp + ' em andamento.');
     say('Arena contra ' + v.opp + '. Tudo zerado, 5 minutos. Farma!');
+    if (beqArena()) setTimeout(function () { showBanner('Bequinha na Arena 👑', 'Escudo 🛡️ e ataque ⚔️'); say('👑 Bequinha na Arena: haters roubam metade e não quebram o combo, +12% de crítico e golpe dobrado nos haters.'); }, 600);
     arSync(v); renderArena(); update();
   }
   function arSync(v) {

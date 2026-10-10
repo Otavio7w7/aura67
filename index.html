@@ -1081,7 +1081,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       <div class="foot">
         <span id="saveNote">O progresso fica salvo neste navegador.</span>
         <button class="secret" id="loveBtn" type="button" aria-label="Surpresa">♥</button>
-        <span class="footbtns"><button class="ghost" id="fxBtn" type="button" aria-label="Alternar qualidade dos efeitos">Efeitos: Completo</button> <button class="ghost" id="vibBtn" type="button">Vibração: Ligada</button> <button class="ghost" id="hatBtn" type="button">Haters: Ligados</button> <button class="ghost" id="resetBtn" type="button">Zerar tudo</button></span>
+        <span class="footbtns"><button class="ghost" id="fxBtn" type="button" aria-label="Alternar qualidade dos efeitos">Efeitos: Completo</button> <button class="ghost" id="vibBtn" type="button">Vibração: Ligada</button> <button class="ghost" id="hatBtn" type="button">Haters: Ligados</button> <button class="ghost" id="offBtn" type="button" hidden>Farm offline: Ligado</button> <button class="ghost" id="resetBtn" type="button">Zerar tudo</button></span>
       </div>
 
       </div>
@@ -1336,7 +1336,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       var raw = o0 ? null : localStorage.getItem(KEY);
       var o = o0 || (raw ? JSON.parse(raw) : null);
       if (o) {
-        ['aura', 'earned', 'run', 'best', 'clicks', 'ego', 'egoSpent', 'inflations', 'click', 'crits', 'bestCombo', 'golds', 'haters', 'bosses', 'chall', 'eggs'].forEach(function (k) {
+        ['aura', 'earned', 'run', 'best', 'clicks', 'ego', 'egoSpent', 'inflations', 'click', 'crits', 'bestCombo', 'golds', 'haters', 'bosses', 'chall', 'eggs', 'ts'].forEach(function (k) {
           if (typeof o[k] === 'number' && isFinite(o[k])) s[k] = o[k];
         });
         if (o.gens && typeof o.gens === 'object') GENS.forEach(function (g) { if (typeof o.gens[g.id] === 'number') s.gens[g.id] = o.gens[g.id]; });
@@ -1349,8 +1349,9 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     return s;
   }
   var S = load();
+  var bootTs = S.ts || 0; // hora do último save antes de abrir (farm offline)
   var noSave = false;
-  function save() { if (noSave || arenaOn) return; try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  function save() { if (noSave || arenaOn) return; S.ts = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 
   function totalGens(s) { var n = 0; GENS.forEach(function (g) { n += s.gens[g.id] || 0; }); return n; }
   function levelOf(v) { var idx = 0; for (var i = 0; i < LEVELS.length; i++) if (v >= LEVELS[i].min) idx = i; return idx; }
@@ -2718,6 +2719,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   }
 
   function applyCloud(o) {
+    if (o && typeof o.ts === 'number') bootTs = o.ts;
     S = load(o); frenzyLeft = 0; combo = 0; lastLevel = levelIndex(); prevK = Math.floor(S.earned / 67);
     save(); update();
   }
@@ -2738,6 +2740,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     var on = !!ses;
     $('who').hidden = !on; $('who').textContent = on ? ses.nick + (isQueen(ses.nick) ? ' 👑' : '') + (arLv('titulo') > 0 ? ' ⚔️' : '') : '';
     $('logoutBtn').hidden = !on; $('loginBtn').hidden = on;
+    $('offBtn').hidden = !(on && isBeq(ses.nick));
     if (queenMult() > 1 && !queenSaid) { queenSaid = true; setTimeout(function () { showBanner('Bênção da Bequinha 👑', 'Aura x' + QUEEN_MULT + ' · ' + QUEEN_AUTO + ' cliques/s'); say('👑 Bênção da Bequinha ativa: toda aura x' + QUEEN_MULT + ' e ' + QUEEN_AUTO + ' cliques automáticos por segundo.'); }, 1200); }
   }
   var queenSaid = false;
@@ -2777,7 +2780,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
         if (row && row.save && typeof row.save === 'object') { applyCloud(row.save); say('Progresso carregado da nuvem. Bem-vindo, ' + ses.nick + '.'); }
         else { lastSig = ''; push(); say('Conta pronta, ' + ses.nick + '. Agora é farmar.'); }
         $('authModal').hidden = true; $('fPass').value = ''; renderAcct();
-        setTimeout(giveGift, 1500);
+        setTimeout(afterSync, 1500);
       })
       .catch(function (e) { if (ses && !ses.nick) dropSession(); err.textContent = niceErr(e); })
       .then(function () { go.disabled = false; });
@@ -3193,6 +3196,38 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
 
   // ---------- Presente para todos: +1 milhão de aura, uma vez por save (só depois de sincronizar com a nuvem) ----------
   var GIFT_ID = 'presente-1m-2026-10-10', GIFT_AURA = 1e6, GIFT_UNTIL = new Date(2026, 9, 18).getTime();
+  // ---------- Farm offline (só conta "bequinha"): ao voltar, recebe a produção do tempo fora, até 24 h ----------
+  var OFF_MAX = 24 * 3600, OFF_KEY = 'aura67.offline';
+  var offOn = (function () { try { return localStorage.getItem(OFF_KEY) !== 'off'; } catch (e) { return true; } })();
+  function offLabel() { $('offBtn').textContent = 'Farm offline: ' + (offOn ? 'Ligado' : 'Desligado'); }
+  offLabel();
+  $('offBtn').addEventListener('click', function () {
+    offOn = !offOn;
+    try { localStorage.setItem(OFF_KEY, offOn ? 'on' : 'off'); } catch (e) {}
+    offLabel(); say(offOn ? 'Farm offline ligado: o 67 continua farmando quando você sai.' : 'Farm offline desligado.');
+  });
+  function offlineGain(secs) {
+    if (!beqNormal() || !offOn || !(secs >= 60)) return;
+    secs = Math.min(secs, OFF_MAX);
+    var au = (S.eu.auto || 0) + (queenMult() > 1 ? QUEEN_AUTO : 0) + arenaAuto();
+    var g = (baseRate() + au * clickBase()) * secs;
+    if (!(g > 0)) return;
+    add(g); save(); update();
+    var h = Math.floor(secs / 3600), m = Math.floor(secs % 3600 / 60), tempo = h ? h + 'h' + (m ? ' ' + m + 'min' : '') : m + ' min';
+    setTimeout(function () { showBanner('Enquanto você estava fora 💤', '+' + fmt(g) + ' de aura'); say('💤 Farm offline: ' + tempo + ' fora renderam +' + fmt(g) + ' de aura.'); }, 2600);
+    if (CLOUD && ses) { lastSig = ''; push(); }
+  }
+  function afterSync() {
+    giveGift();
+    if (bootTs) { var t0 = bootTs; bootTs = 0; offlineGain((Date.now() - t0) / 1000); }
+  }
+  // app em segundo plano: o loop principal já cobre até 60 s, o resto vira farm offline
+  var hiddenAt = 0;
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { hiddenAt = Date.now(); return; }
+    if (hiddenAt) { var gap = (Date.now() - hiddenAt) / 1000 - 60; hiddenAt = 0; offlineGain(gap); }
+  });
+
   function giveGift() {
     if (arenaOn || Date.now() >= GIFT_UNTIL) return;
     if (!S.gifts) S.gifts = {};
@@ -3219,13 +3254,13 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
           if (!row) { dropSession(); renderAcct(); openAuth(); return; }
           if (row.save && typeof row.save === 'object' && (row.save.earned || 0) > S.earned) applyCloud(row.save);
           lastSig = '';
-          giveGift();
-        }).catch(function (e) { if (e && e.status === 401) { dropSession(); renderAcct(); openAuth(); } else giveGift(); });
-    } else giveGift();
+          afterSync();
+        }).catch(function (e) { if (e && e.status === 401) { dropSession(); renderAcct(); openAuth(); } else afterSync(); });
+    } else afterSync();
     setInterval(push, 20000);
     document.addEventListener('visibilitychange', function () { if (document.hidden) push(true); });
     window.addEventListener('pagehide', function () { push(true); });
-  } else giveGift();
+  } else afterSync();
 
   var mini = $('mini');
   if ('IntersectionObserver' in window) {

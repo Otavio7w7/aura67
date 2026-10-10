@@ -1081,7 +1081,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       <div class="foot">
         <span id="saveNote">O progresso fica salvo neste navegador.</span>
         <button class="secret" id="loveBtn" type="button" aria-label="Surpresa">♥</button>
-        <span class="footbtns"><button class="ghost" id="fxBtn" type="button" aria-label="Alternar qualidade dos efeitos">Efeitos: Completo</button> <button class="ghost" id="vibBtn" type="button">Vibração: Ligada</button> <button class="ghost" id="resetBtn" type="button">Zerar tudo</button></span>
+        <span class="footbtns"><button class="ghost" id="fxBtn" type="button" aria-label="Alternar qualidade dos efeitos">Efeitos: Completo</button> <button class="ghost" id="vibBtn" type="button">Vibração: Ligada</button> <button class="ghost" id="hatBtn" type="button">Haters: Ligados</button> <button class="ghost" id="resetBtn" type="button">Zerar tudo</button></span>
       </div>
 
       </div>
@@ -2035,7 +2035,11 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   var turboLeft = 0, chall = null, challAt = Date.now() + 60000;
   var HNAMES = ['Hater', 'Cringe', 'NPC invejoso', 'Comentário tóxico', 'Print do ex', 'Fofoqueiro', 'Ranço', 'Vergonha alheia'];
   var BNAMES = ['Hater supremo', 'Rei do cringe', 'Fofoqueiro-mor', 'Chefão do ranço'];
+  // Jogo normal: haters raros e inofensivos (não roubam nem cortam produção), só bônus ao derrubar.
+  // Dá para desligar em Mais. Na Arena continuam como antes.
+  var HATERS_ON = (function () { try { return localStorage.getItem('aura67.haters') !== 'off'; } catch (e) { return true; } })();
   function haterMult() {
+    if (!arenaOn) return 1;
     var m = 1;
     var sh = beqArena();
     for (var i = 0; i < haters.length; i++) m *= haters[i].boss ? (sh ? 0.8 : 0.6) : (sh ? 0.95 : 0.9);
@@ -2072,7 +2076,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     if (boss) {
       showBanner('Chefe chegando', name);
       shake(true); flash(0, 0.45); fireSound('chefe', true); buzz([100, 60, 100]);
-      say(name + ' quer roubar sua aura. Clique nele até cair.');
+      say(arenaOn ? name + ' quer roubar sua aura. Clique nele até cair.' : name + ' apareceu. Derrube para ganhar um prêmio grande.');
     }
     if (!hRaf) { hLast = performance.now(); hRaf = requestAnimationFrame(haterLoop); }
     return h;
@@ -2104,6 +2108,12 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     hRaf = haters.length ? requestAnimationFrame(haterLoop) : 0;
   }
   function haterSteal(h) {
+    if (!arenaOn) {
+      // jogo normal: ele só desiste e vai embora, sem roubar nem quebrar combo
+      removeHater(h);
+      floater(h.x, h.y, 'foi embora', '');
+      return;
+    }
     var li = levelIndex();
     var pct = h.boss ? Math.min(0.1 + li * 0.006, 0.25) : Math.min(0.03 + li * 0.004, 0.12) * (h.k === 'tank' ? 1.5 : 1);
     var shield = beqArena();
@@ -2155,7 +2165,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     function (li) { var n = Math.min(5 + Math.floor(li / 2), 14); return { type: 'haters', goal: n, time: 20, txt: 'Onda de haters: derrube ' + n }; }
   ];
   function startChall() {
-    var li = levelIndex(), pool = li >= 3 ? CHALLS : CHALLS.slice(0, 2);
+    var li = levelIndex(), pool = li >= 3 && arenaOn ? CHALLS : CHALLS.slice(0, 2);
     chall = pool[Math.floor(Math.random() * pool.length)](li);
     chall.n = 0; chall.left = chall.time;
     showBanner('Desafio relâmpago', chall.txt);
@@ -2171,10 +2181,8 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       showBanner('Desafio cumprido', 'Turbo x3 por 20s');
       say('Desafio cumprido. Turbo x3 em toda a aura por 20 segundos.');
     } else {
-      // Perder tem castigo: os haters vêm rir da sua cara
-      setTimeout(function () { spawnHater(); }, 300);
-      showBanner('Desafio perdido', 'Um hater veio rir');
-      say('Desafio perdido. Um hater veio rir da sua cara.');
+      showBanner('Desafio perdido', 'Fica pra próxima');
+      say('Desafio perdido. Fica pra próxima.');
     }
     chall = null;
     challAt = Date.now() + 70000 + Math.random() * 60000;
@@ -2197,18 +2205,30 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
       else if (chall.left <= 0) endChall(false);
     }
     renderChall();
-    document.body.classList.toggle('danger', haters.length >= 3 || hasBoss());
-    if (li < 1 || document.hidden) { haterAt = Math.max(haterAt, now + 3000); return; }
-    var cap = Math.min(2 + Math.floor(li / 3), 7);
-    if (now >= haterAt) {
-      if (haters.length < cap) spawnHater();
-      haterAt = now + Math.max(3000, 14000 - li * 450) * (0.6 + Math.random() * 0.8);
+    document.body.classList.toggle('danger', arenaOn && (haters.length >= 3 || hasBoss()));
+    if (li < 1 || document.hidden || (!arenaOn && !HATERS_ON)) { haterAt = Math.max(haterAt, now + 3000); if (!arenaOn) bossAt = Math.max(bossAt, now + 3000); }
+    else if (arenaOn) {
+      var cap = Math.min(2 + Math.floor(li / 3), 7);
+      if (now >= haterAt) {
+        if (haters.length < cap) spawnHater();
+        haterAt = now + Math.max(3000, 14000 - li * 450) * (0.6 + Math.random() * 0.8);
+      }
+      if (li >= 5 && now >= bossAt) {
+        if (!hasBoss()) spawnHater('boss');
+        bossAt = now + Math.max(120000, 260000 - li * 5000) * (0.8 + Math.random() * 0.4);
+      }
+    } else {
+      // jogo normal: no máximo 1 hater por vez, de 45 a 90 s; chefe a cada 6 a 10 min
+      if (now >= haterAt) {
+        if (!haters.length) spawnHater();
+        haterAt = now + 45000 + Math.random() * 45000;
+      }
+      if (li >= 5 && now >= bossAt) {
+        if (!hasBoss()) spawnHater('boss');
+        bossAt = now + 360000 + Math.random() * 240000;
+      }
     }
-    if (li >= 5 && now >= bossAt) {
-      if (!hasBoss()) spawnHater('boss');
-      bossAt = now + Math.max(120000, 260000 - li * 5000) * (0.8 + Math.random() * 0.4);
-    }
-    if (li >= 2 && !chall && now >= challAt) startChall();
+    if (li >= 2 && !chall && now >= challAt && !document.hidden) startChall();
     var g = S.eu.guard || 0;
     if (g > 0 && haters.length) {
       guardT += dt;
@@ -2286,6 +2306,15 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
     VIB = !VIB;
     try { localStorage.setItem('aura67.vib', VIB ? 'on' : 'off'); } catch (e) {}
     vibLabel(); buzz(40);
+  });
+  function hatLabel() { $('hatBtn').textContent = 'Haters: ' + (HATERS_ON ? 'Ligados' : 'Desligados'); }
+  hatLabel();
+  $('hatBtn').addEventListener('click', function () {
+    HATERS_ON = !HATERS_ON;
+    try { localStorage.setItem('aura67.haters', HATERS_ON ? 'on' : 'off'); } catch (e) {}
+    if (!HATERS_ON && !arenaOn) clearHaters();
+    hatLabel();
+    say(HATERS_ON ? 'Haters ligados: aparecem de vez em quando e dão prêmio ao cair.' : 'Haters desligados. Paz total.');
   });
   $('fxBtn').addEventListener('click', function () {
     LITE = !LITE;
@@ -3095,7 +3124,7 @@ window.AURA_CFG = { url: 'https://dwbrhervcopmnvvjurlw.supabase.co', key: 'sb_pu
   function exitArena(v) {
     var my = S.earned;
     S = arStash || load(); arStash = null; arenaOn = false; arFrozen = false; arBattle = null;
-    frenzyLeft = 0; combo = 0; clearHaters(); chall = null; turboLeft = 0; lastLevel = levelIndex(); prevK = Math.floor(S.earned / 67);
+    frenzyLeft = 0; combo = 0; clearHaters(); chall = null; turboLeft = 0; lastLevel = levelIndex(); prevK = Math.floor(S.earned / 67); haterAt = Date.now() + 45000; bossAt = Date.now() + 360000;
     document.body.classList.remove('arena'); $('arHud').hidden = true;
     save(); arStatus(''); update(); renderCombo();
     var r = v.result, ico = r === 'win' ? '🏆' : r === 'draw' ? '🤝' : '💀';
